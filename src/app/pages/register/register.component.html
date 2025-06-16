@@ -1,0 +1,81 @@
+
+<div class="w-1/2 mx-auto py-10">
+
+    <div class="w-1/2 mx-auto mb-5">
+        <img src="logo.png" alt="Kingdom Kids Logo">
+        <h2 class="text-center text-3xl font-extrabold text-gray-900">
+            Registro Kingdom Kids {{ currentDate | date:'YYYY' }}
+        </h2>
+        <p class="text-center text-md text-gray-600">
+            Ingresa los datos generales del niño/a
+        </p>
+    </div>
+    <p-card>
+        <form class="space-y-5">
+            <div class="grid grid-cols-2 gap-5">
+                <input pInputText type="text" placeholder="Nombre(s)" />
+                <input pInputText type="text" placeholder="Apellidos" />
+            </div>
+
+            <div>
+                <label for="">Fecha de nacimiento</label>
+                <div class="grid grid-cols-4 gap-5">
+                    <input pInputText type="text" placeholder="Día" />
+                    <p-date-picker view="month" dateFormat="mm" [readonlyInput]="true" placeholder="Mes"/>
+                    <p-date-picker view="year" dateFormat="yy" [readonlyInput]="true" placeholder="Año"/>
+                    <input pInputText type="text" placeholder="Edad" />
+                </div>
+            </div>
+
+            <input type="text" pInputText placeholder="Dirección" class="w-full" />
+
+            <hr>
+
+            <h3 class="font-semibold text-xl">Información importante</h3>
+
+            <div class="space-y-3">
+                <div>
+                    <p-checkbox  value="New York" inputId="ny" />
+                    <label for="ny" class="ml-2">¿El niño/a es alérgico a algún alimento?</label>
+                </div>
+                <div>
+                    <label for="allergy_description">Por favor, indíquelo a continuación.</label>
+                    <input type="text" id="allergy_description" pInputText class="w-full" />
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <p-checkbox  value="New York" inputId="ny" />
+                    <label for="ny" class="ml-2">¿Su hijo(a) cuenta con alguna condición médica, de desarrollo o necesidad específica?</label>
+                </div>
+                <div>
+                    <label for="allergy_description">Por favor, indíquelo a continuación.</label>
+                    <input type="text" id="allergy_description" pInputText class="w-full" />
+                    <small class="text-gray-500">
+                        Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora, intelectual o de comunicación.
+                    </small>
+                </div>
+            </div>
+
+            <hr>
+
+            <h3 class="font-semibold text-xl">Información adicional</h3>
+
+            <div class="space-y-3">
+                <label>¿Es miembro de Mundo de Fe?</label>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <p-radio-button name="pizza" value="Cheese" inputId="ingredient1" />
+                        <label for="ingredient1" class="ml-2">Si</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <p-radio-button name="pizza" value="Mushroom" inputId="ingredient2" />
+                        <label for="ingredient2" class="ml-2">No</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </p-card>
+</div>
