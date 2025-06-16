@@ -1,4 +1,3 @@
-
 <div class="w-1/2 mx-auto py-10">
 
     <div class="w-1/2 mx-auto mb-5">
@@ -10,50 +9,95 @@
             Ingresa los datos generales del niño/a
         </p>
     </div>
-    <p-card>
-        <form class="space-y-5">
+    <div class="border rounded-2xl px-5 py-10">
+        <form [formGroup]="registerForm" class="space-y-5">
             <div class="grid grid-cols-2 gap-5">
-                <input pInputText type="text" placeholder="Nombre(s)" />
-                <input pInputText type="text" placeholder="Apellidos" />
+                <input pInputText type="text" formControlName="name" placeholder="Nombre(s)"/>
+                <input pInputText type="text" formControlName="lastname" placeholder="Apellidos"/>
             </div>
 
             <div>
                 <label for="">Fecha de nacimiento</label>
                 <div class="grid grid-cols-4 gap-5">
-                    <input pInputText type="text" placeholder="Día" />
-                    <p-date-picker view="month" dateFormat="mm" [readonlyInput]="true" placeholder="Mes"/>
-                    <p-date-picker view="year" dateFormat="yy" [readonlyInput]="true" placeholder="Año"/>
-                    <input pInputText type="text" placeholder="Edad" />
+                    <input pInputText type="text" formControlName="birthday_day" placeholder="Día"/>
+                    <p-select [options]="months" optionLabel="month"  formControlName="birthday_month" placeholder="Mes"/>
+                    <input pInputText type="text" formControlName="birthday_year" placeholder="Año"/>
+                    <input pInputText type="text" formControlName="age" placeholder="Edad"/>
                 </div>
             </div>
 
-            <input type="text" pInputText placeholder="Dirección" class="w-full" />
+            <input type="text" pInputText formControlName="address" placeholder="Dirección" />
+
+            <hr>
+
+            <h3 class="font-semibold text-xl">Información de los padres</h3>
+
+            <div formArrayName="parents" class="space-y-5">
+                @for (authorized of parents.controls; track authorized) {
+                    <div [formGroupName]="$index" class="grid grid-cols-2 gap-5">
+                        <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"/>
+                        <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                    </div>
+                }
+            </div>
+
+            <hr>
+
+            <h3 class="font-semibold text-xl">Personas autorizadas para entregar y recoger al niño/a</h3>
+
+            <div formArrayName="authorized_person" class="space-y-5">
+                @for (authorized of authorized_person.controls; track authorized) {
+                    <div [formGroupName]="$index" class="grid grid-cols-4 gap-5">
+                        <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo" class="col-span-2"/>
+                        <input pInputText type="text" formControlName="relationship" placeholder="Parentesco"/>
+                        <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                    </div>
+                }
+            </div>
 
             <hr>
 
             <h3 class="font-semibold text-xl">Información importante</h3>
 
             <div class="space-y-3">
-                <div>
-                    <p-checkbox  value="New York" inputId="ny" />
-                    <label for="ny" class="ml-2">¿El niño/a es alérgico a algún alimento?</label>
+                <label>¿El niño/a es alérgico a algún alimento?</label>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <p-radio-button [value]="1" formControlName="allergy"/>
+                        <label class="ml-2">Si</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <p-radio-button [value]="0" formControlName="allergy"/>
+                        <label class="ml-2">No</label>
+                    </div>
                 </div>
+
                 <div>
                     <label for="allergy_description">Por favor, indíquelo a continuación.</label>
-                    <input type="text" id="allergy_description" pInputText class="w-full" />
+                    <input type="text" pInputText formControlName="allergy_description" class="w-full"/>
                 </div>
             </div>
 
             <div class="space-y-3">
-                <div>
-                    <p-checkbox  value="New York" inputId="ny" />
-                    <label for="ny" class="ml-2">¿Su hijo(a) cuenta con alguna condición médica, de desarrollo o necesidad específica?</label>
+                <label>¿Su hijo(a) cuenta con alguna condición médica, de desarrollo o necesidad específica?</label>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <p-radio-button [value]="1" formControlName="medical_condition"/>
+                        <label class="ml-2">Si</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <p-radio-button [value]="0" formControlName="medical_condition"/>
+                        <label class="ml-2">No</label>
+                    </div>
                 </div>
                 <div>
                     <label for="allergy_description">Por favor, indíquelo a continuación.</label>
-                    <input type="text" id="allergy_description" pInputText class="w-full" />
+                    <input type="text" formControlName="medical_condition_description" pInputText class="w-full"/>
                     <small class="text-gray-500">
-                        Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora, intelectual o de comunicación.
+                        Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora, intelectual
+                        o de comunicación.
                     </small>
                 </div>
             </div>
@@ -66,16 +110,104 @@
                 <label>¿Es miembro de Mundo de Fe?</label>
                 <div class="flex flex-wrap gap-4">
                     <div class="flex items-center">
-                        <p-radio-button name="pizza" value="Cheese" inputId="ingredient1" />
-                        <label for="ingredient1" class="ml-2">Si</label>
+                        <p-radio-button [value]="1" formControlName="mdf_member"/>
+                        <label class="ml-2">Si</label>
                     </div>
 
                     <div class="flex items-center">
-                        <p-radio-button name="pizza" value="Mushroom" inputId="ingredient2" />
-                        <label for="ingredient2" class="ml-2">No</label>
+                        <p-radio-button [value]="0" formControlName="mdf_member"/>
+                        <label class="ml-2">No</label>
                     </div>
                 </div>
             </div>
+
+            <hr>
+
+            <div class="space-y-3">
+                <label>¿Asiste a otra iglesia cristiana?</label>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <p-radio-button [value]="1" formControlName="another_church"/>
+                        <label class="ml-2">Si</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <p-radio-button [value]="0" formControlName="another_church"/>
+                        <label class="ml-2">No</label>
+                    </div>
+                </div>
+                <div>
+                    <label >Escriba el nombre de la iglesia</label>
+                    <input type="text" formControlName="another_church_name" pInputText class="w-full"/>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="space-y-3">
+                <label>¿Lo invito un miembro de Mundo de Fe Playa?</label>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <p-radio-button  [value]="1" formControlName="invited" />
+                        <label class="ml-2">Si</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <p-radio-button  [value]="0" formControlName="invited"/>
+                        <label class="ml-2">No</label>
+                    </div>
+                </div>
+                <div>
+                    <label >Escriba el nombre aquí</label>
+                    <input type="text" formControlName="invite_name" pInputText class="w-full"/>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="text-justify text-sm space-y-3">
+                <p class="text-gray-500">La Escuela de Verano “Kingdom Kids {{ currentDate | date:'YYYY' }}”
+                    que se realizará del 21 al 25 de julio de {{ currentDate | date:'YYYY' }}, es un
+                    evento totalmente gratuito que implica actividades físicas, recreativas,
+                    religiosas y la convivencia de niños y niñas de diferentes edades. La seguridad es sumamente
+                    importante para nosotros, y cuenta con nuestra máxima atención y cuidado, pero la posibilidad de
+                    que ocurra algún accidente está siempre latente en todas las actividades físicas y recreativas
+                    que se desarrollan. Al registrar a su hijo(a) está AUTORIZANDO y
+                    consintiendo que su hijo(a) pueda realizar dichas actividades. Asimismo, bajo su responsabilidad
+                    acepta que entiende los riesgos de accidente que significa las actividades físicas y recreativas
+                    así como la convivencia con más personas, y de riesgos de contagio de COVID19, por lo que
+                    manifiesta que libera de toda responsabilidad de cualquier naturaleza a La Escuela de Verano
+                    “Kingdom Kids {{ currentDate | date:'YYYY' }}” y a la Iglesia Cristiana Mundo de Fe de la Rivera
+                    Maya Asociación Religiosa,
+                    a
+                    sus representantes legales, colaboradores y participantes.
+                <p>
+
+                <p class="text-gray-500">
+                    Así mismo, por medio de la presente y de conformidad con la Ley Federal del Derecho de Autor,
+                    AUTORIZO a la Iglesia Cristiana Mundo de Fe de la Rivera Maya Asociación Religiosa, para usar
+                    fotografías o videograbaciones que incluyan la imagen de mi hijo(a), en campañas, promocionales
+                    y demás material de apoyo que se consideren pertinentes para difusión y promoción de las
+                    actividades y en el país o en el extranjero por cualquier medio, ya sea impreso, electrónico o
+                    de otro tipo.
+                </p>
+                <p class="text-gray-500">
+                    Queremos recordarle de NO traer a su hijo o hija, en caso de tener síntomas tales, como gripe,
+                    tos, fiebre, o si alguno de los familiares con quien vive los presentase, así también le pedimos
+                    no enviar a sus hijo(a) con objetos de valor que puedan extraviar fácilmente, por tal motivo los
+                    organizadores no se hacen responsables de los desperfectos o pérdidas de objetos de valor.
+                    <br> En Playa del Carmen Quintana Roo a {{ currentDate | date:'longDate' }}
+                </p>
+                <div>
+                    <p-checkbox [value]="1" inputId="ny"/>
+                    <label for="ny" class="ml-2">He leido detenidamente los Terminos y Condiciones y quiero registrar a mi
+                        hijo(a).</label>
+                </div>
+            </div>
+
+            <div class="w-full justify-center">
+                <p-button label="Finalizar registro" (click)="register()"/>
+            </div>
         </form>
-    </p-card>
+    </div>
 </div>
