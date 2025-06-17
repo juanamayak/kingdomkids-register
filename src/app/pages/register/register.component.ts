@@ -12,6 +12,10 @@ import {Select, SelectModule} from 'primeng/select';
 import {InputGroupModule} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {Months} from '../../constants/months';
+import {KidsService} from '../../services/kids.service';
+import moment from 'moment';
+import {MessageService} from 'primeng/api';
+import {ToastModule} from 'primeng/toast';
 
 @Component({
     selector: 'app-register',
@@ -27,15 +31,19 @@ import {Months} from '../../constants/months';
         InputGroupModule,
         InputGroupAddonModule,
         SelectModule,
+        ToastModule,
         FormsModule,
         DatePipe,
     ],
+    providers: [MessageService],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
 export class RegisterComponent implements OnInit {
 
+    private kidsService = inject(KidsService);
     private formBuilder = inject(FormBuilder);
+    private messageService = inject(MessageService);
 
     public registerForm: any;
 
@@ -43,9 +51,10 @@ export class RegisterComponent implements OnInit {
     public ingredient!: string;
 
     public months = Months
-
+    public years: any;
 
     ngOnInit() {
+        this.years = this.getYears();
         this.initRegisterForm();
     }
 
@@ -83,24 +92,94 @@ export class RegisterComponent implements OnInit {
                     relationship: ['', Validators.required],
                 })
             ]),
-            allergy: ['', Validators.required],
+            allergy: [0, Validators.required],
             allergy_description: ['', Validators.required],
-            medical_condition: ['', Validators.required],
+            medical_condition: [0, Validators.required],
             medical_condition_description: ['', Validators.required],
-            mdf_member: ['', Validators.required],
-            another_church: ['', Validators.required],
+            mdf_member: [0, Validators.required],
+            another_church: [0, Validators.required],
             another_church_name: ['', Validators.required],
-            invited: ['', Validators.required],
+            invited: [0, Validators.required],
             invite_name: ['', Validators.required],
         });
     }
 
     register(){
-        console.log(this.registerForm.value);
+        const year = this.registerForm.get('birthday_year').value;
+        const month = this.registerForm.get('birthday_month').value;
+        const day = this.registerForm.get('birthday_day').value;
+        this.registerForm.controls.birthday.setValue(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
+
+
+        const birthdate = new Date(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
+        var timeDiff = Math.abs(Date.now() - birthdate.getTime());
+        let age = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365.25);
+        const allowAges = [5, 6, 7 , 8 , 9, 10, 11];
+        if (allowAges.includes(age)) {
+            const data = this.registerForm.value;
+            this.kidsService.register(data).subscribe({
+                next: data => {
+                    console.log(data);
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: `La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.` });
+        }
+
+
+
+    }
+
+    calculateAge(){
+        const year = this.registerForm.get('birthday_year').value;
+        const month = this.registerForm.get('birthday_month').value;
+        const day = this.registerForm.get('birthday_day').value;
+        const birthdate = new Date(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
+        var timeDiff = Math.abs(Date.now() - birthdate.getTime());
+        let age = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365.25);
+        const allowAges = [5, 6, 7 , 8 , 9, 10, 11];
+        console.log(age);
+        if (!allowAges.includes(age)) {
+            // this.messageService.printStatus(`La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.`, 'warning');
+        }
+    }
+
+    private getYears() {
+        const years = [];
+        const dateStart = moment('2009-01-01');
+        const dateEnd = moment().add(30, 'y');
+        while (dateEnd.diff(dateStart, 'years') >= 0) {
+            years.push(dateStart.format('YYYY'));
+            dateStart.add(1, 'year');
+        }
+        return years;
     }
 
     get parents() {
         return this.registerForm.get("parents") as FormArray
+    }
+
+    get allergy() {
+        return this.registerForm.get("allergy");
+    }
+
+    get medical_condition() {
+        return this.registerForm.get("medical_condition");
+    }
+
+    get mdf_member() {
+        return this.registerForm.get("mdf_member");
+    }
+
+    get another_church() {
+        return this.registerForm.get("another_church");
+    }
+
+    get invited() {
+        return this.registerForm.get("invited");
     }
 
     get authorized_person() {

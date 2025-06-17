@@ -1,7 +1,7 @@
 <div class="w-1/2 mx-auto py-10">
 
-    <div class="w-1/2 mx-auto mb-5">
-        <img src="logo.png" alt="Kingdom Kids Logo">
+    <div class="mx-auto mb-5">
+        <img src="logo.png" alt="Kingdom Kids Logo" class="w-1/2 mx-auto">
         <h2 class="text-center text-3xl font-extrabold text-gray-900">
             Registro Kingdom Kids {{ currentDate | date:'YYYY' }}
         </h2>
@@ -20,13 +20,20 @@
                 <label for="">Fecha de nacimiento</label>
                 <div class="grid grid-cols-4 gap-5">
                     <input pInputText type="text" formControlName="birthday_day" placeholder="Día"/>
-                    <p-select [options]="months" optionLabel="month"  formControlName="birthday_month" placeholder="Mes"/>
-                    <input pInputText type="text" formControlName="birthday_year" placeholder="Año"/>
+                    <p-select [options]="months" optionLabel="month" formControlName="birthday_month"
+                              placeholder="Mes"/>
+                    <input
+                        pInputText
+                        type="text"
+                        formControlName="birthday_year"
+                        placeholder="Año"
+                        (blur)="calculateAge()"
+                    />
                     <input pInputText type="text" formControlName="age" placeholder="Edad"/>
                 </div>
             </div>
 
-            <input type="text" pInputText formControlName="address" placeholder="Dirección" />
+            <input type="text" pInputText formControlName="address" placeholder="Dirección"/>
 
             <hr>
 
@@ -48,7 +55,8 @@
             <div formArrayName="authorized_person" class="space-y-5">
                 @for (authorized of authorized_person.controls; track authorized) {
                     <div [formGroupName]="$index" class="grid grid-cols-4 gap-5">
-                        <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo" class="col-span-2"/>
+                        <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"
+                               class="col-span-2"/>
                         <input pInputText type="text" formControlName="relationship" placeholder="Parentesco"/>
                         <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
                     </div>
@@ -73,10 +81,12 @@
                     </div>
                 </div>
 
-                <div>
-                    <label for="allergy_description">Por favor, indíquelo a continuación.</label>
-                    <input type="text" pInputText formControlName="allergy_description" class="w-full"/>
-                </div>
+                @if (allergy.value) {
+                    <div>
+                        <label for="allergy_description">Por favor, indíquelo a continuación.</label>
+                        <input type="text" pInputText formControlName="allergy_description" class="w-full"/>
+                    </div>
+                }
             </div>
 
             <div class="space-y-3">
@@ -92,14 +102,18 @@
                         <label class="ml-2">No</label>
                     </div>
                 </div>
-                <div>
-                    <label for="allergy_description">Por favor, indíquelo a continuación.</label>
-                    <input type="text" formControlName="medical_condition_description" pInputText class="w-full"/>
-                    <small class="text-gray-500">
-                        Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora, intelectual
-                        o de comunicación.
-                    </small>
-                </div>
+                @if (medical_condition.value) {
+                    <div>
+                        <label for="allergy_description">Por favor, indíquelo a continuación.</label>
+                        <input type="text" formControlName="medical_condition_description" pInputText class="w-full"/>
+                        <small class="text-gray-500">
+                            Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora,
+                            intelectual
+                            o de comunicación.
+                        </small>
+                    </div>
+                }
+
             </div>
 
             <hr>
@@ -136,10 +150,12 @@
                         <label class="ml-2">No</label>
                     </div>
                 </div>
-                <div>
-                    <label >Escriba el nombre de la iglesia</label>
-                    <input type="text" formControlName="another_church_name" pInputText class="w-full"/>
-                </div>
+                @if (another_church.value) {
+                    <div>
+                        <label>Escriba el nombre de la iglesia</label>
+                        <input type="text" formControlName="another_church_name" pInputText class="w-full"/>
+                    </div>
+                }
             </div>
 
             <hr>
@@ -148,19 +164,21 @@
                 <label>¿Lo invito un miembro de Mundo de Fe Playa?</label>
                 <div class="flex flex-wrap gap-4">
                     <div class="flex items-center">
-                        <p-radio-button  [value]="1" formControlName="invited" />
+                        <p-radio-button [value]="1" formControlName="invited"/>
                         <label class="ml-2">Si</label>
                     </div>
 
                     <div class="flex items-center">
-                        <p-radio-button  [value]="0" formControlName="invited"/>
+                        <p-radio-button [value]="0" formControlName="invited"/>
                         <label class="ml-2">No</label>
                     </div>
                 </div>
-                <div>
-                    <label >Escriba el nombre aquí</label>
-                    <input type="text" formControlName="invite_name" pInputText class="w-full"/>
-                </div>
+                @if (invited.value) {
+                    <div>
+                        <label>Escriba el nombre aquí</label>
+                        <input type="text" formControlName="invite_name" pInputText class="w-full"/>
+                    </div>
+                }
             </div>
 
             <hr>
@@ -200,7 +218,8 @@
                 </p>
                 <div>
                     <p-checkbox [value]="1" inputId="ny"/>
-                    <label for="ny" class="ml-2">He leido detenidamente los Terminos y Condiciones y quiero registrar a mi
+                    <label for="ny" class="ml-2">He leido detenidamente los Terminos y Condiciones y quiero registrar a
+                        mi
                         hijo(a).</label>
                 </div>
             </div>
@@ -211,3 +230,4 @@
         </form>
     </div>
 </div>
+<p-toast />
