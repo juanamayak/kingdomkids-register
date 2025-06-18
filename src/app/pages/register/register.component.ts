@@ -16,6 +16,7 @@ import {KidsService} from '../../services/kids.service';
 import moment from 'moment';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-register',
@@ -44,11 +45,13 @@ export class RegisterComponent implements OnInit {
     private kidsService = inject(KidsService);
     private formBuilder = inject(FormBuilder);
     private messageService = inject(MessageService);
+    private router = inject(Router);
 
     public registerForm: any;
 
     public currentDate = new Date();
-    public ingredient!: string;
+
+    public isLoading = false;
 
     public months = Months
     public years: any;
@@ -58,26 +61,26 @@ export class RegisterComponent implements OnInit {
         this.initRegisterForm();
     }
 
-    initRegisterForm(){
+    initRegisterForm() {
         this.registerForm = this.formBuilder.group({
             name: ['', Validators.required],
             lastname: ['', Validators.required],
             birthday_day: ['', Validators.required],
             birthday_month: ['', Validators.required],
             birthday_year: ['', Validators.required],
-            birthday: ['', Validators.required],
-            age: ['', Validators.required],
+            birthday: [''],
+            age: [''],
             address: ['', Validators.required],
             parents: this.formBuilder.array([
                 this.formBuilder.group({
                     full_name: ['', Validators.required],
                     cellphone: ['', Validators.required],
-                    type: ['MAMA', Validators.required],
+                    type: ['Mamá', Validators.required],
                 }),
                 this.formBuilder.group({
                     full_name: ['', Validators.required],
                     cellphone: ['', Validators.required],
-                    type: ['PAPA', Validators.required],
+                    type: ['Papá', Validators.required],
                 })
             ]),
             authorized_person: this.formBuilder.array([
@@ -92,58 +95,75 @@ export class RegisterComponent implements OnInit {
                     relationship: ['', Validators.required],
                 })
             ]),
-            allergy: [0, Validators.required],
-            allergy_description: ['', Validators.required],
-            medical_condition: [0, Validators.required],
-            medical_condition_description: ['', Validators.required],
-            mdf_member: [0, Validators.required],
-            another_church: [0, Validators.required],
-            another_church_name: ['', Validators.required],
-            invited: [0, Validators.required],
-            invite_name: ['', Validators.required],
+            allergy: [null, Validators.required],
+            allergy_description: [''],
+            medical_condition: [null, Validators.required],
+            medical_condition_description: [''],
+            mdf_member: [null, Validators.required],
+            another_church: [null, Validators.required],
+            another_church_name: [''],
+            invited: [null, Validators.required],
+            invite_name: [''],
+            terms_condition: ['', Validators.required],
         });
     }
 
-    register(){
+    register() {
+        this.isLoading = true;
+        this.registerForm.disable();
+
         const year = this.registerForm.get('birthday_year').value;
         const month = this.registerForm.get('birthday_month').value;
         const day = this.registerForm.get('birthday_day').value;
         this.registerForm.controls.birthday.setValue(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
 
-
         const birthdate = new Date(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
         var timeDiff = Math.abs(Date.now() - birthdate.getTime());
         let age = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365.25);
-        const allowAges = [5, 6, 7 , 8 , 9, 10, 11];
+        const allowAges = [5, 6, 7, 8, 9, 10, 11];
         if (allowAges.includes(age)) {
+            this.registerForm.controls.age.setValue(age);
             const data = this.registerForm.value;
             this.kidsService.register(data).subscribe({
                 next: data => {
-                    console.log(data);
+                    this.isLoading = false;
+                    this.router.navigate(['registro', data.register.id]);
                 },
                 error: error => {
-                    console.log(error);
+                    this.isLoading = false;
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `Ocurrio un error al hacer el registro`,
+                        sticky: true
+                    });
                 }
             });
         } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: `La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.` });
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.`,
+                sticky: true,
+            });
         }
-
-
-
     }
 
-    calculateAge(){
+    calculateAge() {
         const year = this.registerForm.get('birthday_year').value;
         const month = this.registerForm.get('birthday_month').value;
         const day = this.registerForm.get('birthday_day').value;
         const birthdate = new Date(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
         var timeDiff = Math.abs(Date.now() - birthdate.getTime());
         let age = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365.25);
-        const allowAges = [5, 6, 7 , 8 , 9, 10, 11];
-        console.log(age);
+        const allowAges = [5, 6, 7, 8, 9, 10, 11];
         if (!allowAges.includes(age)) {
-            // this.messageService.printStatus(`La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.`, 'warning');
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.`,
+                sticky: true
+            });
         }
     }
 

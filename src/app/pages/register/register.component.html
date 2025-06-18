@@ -18,10 +18,14 @@
 
             <div>
                 <label for="">Fecha de nacimiento</label>
-                <div class="grid grid-cols-4 gap-5">
+                <div class="grid grid-cols-3 gap-5">
                     <input pInputText type="text" formControlName="birthday_day" placeholder="Día"/>
-                    <p-select [options]="months" optionLabel="month" formControlName="birthday_month"
-                              placeholder="Mes"/>
+                    <p-select
+                        [options]="months"
+                        optionLabel="month"
+                        optionValue="digit"
+                        formControlName="birthday_month"
+                        placeholder="Mes"/>
                     <input
                         pInputText
                         type="text"
@@ -29,7 +33,6 @@
                         placeholder="Año"
                         (blur)="calculateAge()"
                     />
-                    <input pInputText type="text" formControlName="age" placeholder="Edad"/>
                 </div>
             </div>
 
@@ -41,9 +44,12 @@
 
             <div formArrayName="parents" class="space-y-5">
                 @for (authorized of parents.controls; track authorized) {
-                    <div [formGroupName]="$index" class="grid grid-cols-2 gap-5">
-                        <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"/>
-                        <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                    <div>
+                        <label for="">Información de {{ authorized.value.type }}</label>
+                        <div [formGroupName]="$index" class="grid grid-cols-2 gap-5">
+                            <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"/>
+                            <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                        </div>
                     </div>
                 }
             </div>
@@ -54,11 +60,14 @@
 
             <div formArrayName="authorized_person" class="space-y-5">
                 @for (authorized of authorized_person.controls; track authorized) {
-                    <div [formGroupName]="$index" class="grid grid-cols-4 gap-5">
-                        <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"
-                               class="col-span-2"/>
-                        <input pInputText type="text" formControlName="relationship" placeholder="Parentesco"/>
-                        <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                    <div>
+                        <label for="">Información de Persona #{{ $index + 1 }}</label>
+                        <div [formGroupName]="$index" class="grid grid-cols-4 gap-5">
+                            <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"
+                                   class="col-span-2"/>
+                            <input pInputText type="text" formControlName="relationship" placeholder="Parentesco"/>
+                            <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                        </div>
                     </div>
                 }
             </div>
@@ -217,17 +226,23 @@
                     <br> En Playa del Carmen Quintana Roo a {{ currentDate | date:'longDate' }}
                 </p>
                 <div>
-                    <p-checkbox [value]="1" inputId="ny"/>
-                    <label for="ny" class="ml-2">He leido detenidamente los Terminos y Condiciones y quiero registrar a
+                    <p-checkbox formControlName="terms_condition" binary="true" inputId="terms_condition"/>
+                    <label for="terms_condition" class="ml-2">He leido detenidamente los Terminos y Condiciones y quiero
+                        registrar a
                         mi
                         hijo(a).</label>
                 </div>
             </div>
 
             <div class="w-full justify-center">
-                <p-button label="Finalizar registro" (click)="register()"/>
+                <p-button
+                    label="Finalizar registro"
+                    [disabled]="registerForm.invalid || isLoading"
+                    [loading]="isLoading"
+                    (click)="register()"
+                />
             </div>
         </form>
     </div>
 </div>
-<p-toast />
+<p-toast/>

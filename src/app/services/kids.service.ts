@@ -16,4 +16,8 @@ export class KidsService {
     public register(data: any): Observable<any> {
         return this.httpClient.post(`${this.urlApi}/register`, data);
     }
+
+    public getConfirmationRegister(id: any): Observable<any> {
+        return this.httpClient.get(`${this.urlApi}/register/confirmation/${id}`);
+    }
 }

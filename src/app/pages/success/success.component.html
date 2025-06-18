@@ -1,0 +1,81 @@
+<div class="flex items-center justify-center pt-12 pb-5 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-3">
+        <div class="text-center">
+            <span class="pi pi-check-circle text-emerald-500" style="font-size: 2.5rem"></span>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Registro Exitoso</h2>
+        </div>
+        <p class="text-justify text-sm text-gray-500 mb-3">
+            Hola, <span class="font-medium text-indigo-500">{{ register.name }} {{ register.lastname }},</span> tu
+            registro se ha realizado con éxito y ya estás listo para disfrutar del mejor tiempo en Escuela de Verano
+            "Kingdom Kids {{ currentDate | date:'YYYY' }}".
+        </p>
+
+        <p class="text-justify text-sm text-gray-500 mb-3">
+            Te recomendamos <span class="font-medium text-indigo-500">
+            tomar una captura de este Código QR o descargar el archivo para poder registrar tu entrada</span>
+            cada día durante el evento.
+        </p>
+
+        <img src="data:image/jpeg;base64,{{qr}}" class="w-2/4 mx-auto" #qrImg>
+
+        <div>
+            <button type="button"
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                  </span>
+                Descargar QR
+            </button>
+        </div>
+        <div>
+            <button type="button"
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-500 hover:bg-red-700">
+                Finalizar proceso
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="flex items-center justify-center pb-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+        <h3 class="text-indigo-600 text-xl font-bold">"ESCUELA DE VERANO {{ currentDate | date:'YYYY' }} </h3>
+
+        <p class="text-sm text-gray-500">Edades: de 5 a 11 años</p>
+        <p class="text-sm text-gray-500">Fecha del evento: 21 al 25 de Julio</p>
+        <p class="text-sm text-gray-500">Horario: Lunes a Viernes de 09:00 a 13:00 hrs</p>
+        <p class="text-sm text-gray-500">Entrada: Av. 35 Entre Calle 1 y 3 Sur. Colonia Centro</p>
+        <p class="mb-3 text-sm text-gray-500">EVENTO GRATUITO</p>
+
+        <ul class="space-y-3">
+            <li>
+                <h4 class="text-indigo-600">DURANTE LA SEMANA LOS NIÑOS DEBEN TRAER:</h4>
+                <p class="text-gray-500 text-sm">- Lunch y botella de agua con sus nombres escritos.</p>
+                <p class="text-gray-500 text-sm">- Si son hermanos traer el lunch por separado, también con su
+                    nombre.</p>
+                <p class="text-gray-500 text-sm">- Tenis y ropa cómoda.</p>
+            </li>
+
+            <li>
+                <h4 class="text-indigo-600">IMPORTANTE</h4>
+                <p class="mb-3 text-gray-500 text-sm">Si tu niño(a) presenta gripa, tos, fiebre. Deberá quedarse en
+                    casa. En
+                    caso de detectar síntomas durante la escuela, nos comunicaremos contigo. También agradecemos nos
+                    hagas saber si tu niño(a) tiene alergias o alguna condición de salud.</p>
+                <p class="mb-5 text-gray-500 text-sm">Diariamente al llegar a recepción debes estar presente con ellos
+                    para recibir el pase con el que podrán recogerlos a la salida.</p>
+                <p class="text-gray-500 text-sm">¡Apóyanos donando una bolsa de dulces! <br>Podrás entregarlos en el
+                    área de registro.</p>
+            </li>
+
+            <li>
+                <h4 class="text-indigo-600">GRAN CLAUSURA</h4>
+                <p class="text-gray-500 text-sm">SÁBADO 26 de JULIO A LAS 7PM</p>
+                <p class="text-gray-500 text-sm">¡Para toda la familia!</p>
+            </li>
+        </ul>
+    </div>
+</div>
