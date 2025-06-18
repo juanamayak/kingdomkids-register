@@ -18,31 +18,16 @@
 
         <img src="data:image/jpeg;base64,{{qr}}" class="w-2/4 mx-auto" #qrImg>
 
-        <div>
-            <button type="button"
-                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                  </span>
-                Descargar QR
-            </button>
-        </div>
-        <div>
-            <button type="button"
-                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-500 hover:bg-red-700">
-                Finalizar proceso
-            </button>
+        <div class="flex justify-between">
+            <p-button severity="info" (click)="generatePDF()" icon="pi pi-download" label="Descargar QR" />
+            <p-button severity="success" [routerLink]="['/']" icon="pi pi-check-circle" label="Volver al inicio" />
         </div>
     </div>
 </div>
 
 <div class="flex items-center justify-center pb-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full">
-        <h3 class="text-indigo-600 text-xl font-bold">"ESCUELA DE VERANO {{ currentDate | date:'YYYY' }} </h3>
+        <h3 class="text-indigo-600 text-xl font-bold">ESCUELA DE VERANO {{ currentDate | date:'YYYY' }} </h3>
 
         <p class="text-sm text-gray-500">Edades: de 5 a 11 años</p>
         <p class="text-sm text-gray-500">Fecha del evento: 21 al 25 de Julio</p>
