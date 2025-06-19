@@ -131,7 +131,7 @@ export class RegisterComponent implements OnInit {
             this.kidsService.register(data).subscribe({
                 next: data => {
                     this.isLoading = false;
-                    this.router.navigate(['registro', data.register.id]);
+                    this.router.navigate(['success', data.register.id]);
                 },
                 error: err => {
                     this.isLoading = false;

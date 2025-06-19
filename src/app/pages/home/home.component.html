@@ -1,0 +1,30 @@
+<div class="p-6 lg:p-12">
+    <div class="w-full mx-auto py-8 lg:w-1/2 space-y-6">
+        <div class="mx-auto space-y-4">
+            <img src="logo.png" alt="Kingdom Kids Logo" class="w-2/3 mx-auto sm:w-1/2 lg:w-1/3">
+            <h2 class="text-center text-xl sm:text-2xl font-semibold">
+                Selecciona una opción
+            </h2>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-6 lg:flex-row lg:w-1/2 mx-auto">
+        <!-- Registro -->
+        <div class="flex-1 space-y-2">
+            <p class="text-center text-gray-500 text-sm">Si aún no te has registrado</p>
+            <div class="flex flex-col items-center bg-white text-emerald-500 border rounded-xl space-y-4 p-6">
+                <i class="pi pi-user-plus" style="font-size: 4rem"></i>
+                <p-button label="Iniciar registro" [raised]="true" [routerLink]="['registro']"></p-button>
+            </div>
+        </div>
+
+        <!-- QR -->
+        <div class="flex-1 space-y-2">
+            <p class="text-center text-gray-500 text-sm">Si necesitas recuperar tu código QR</p>
+            <div class="flex flex-col items-center bg-white text-sky-500 border rounded-xl space-y-4 p-6">
+                <i class="pi pi-qrcode" style="font-size: 4rem"></i>
+                <p-button label="Descargar QR" [raised]="true" severity="info" [routerLink]="['buscador']"></p-button>
+            </div>
+        </div>
+    </div>
+</div>
