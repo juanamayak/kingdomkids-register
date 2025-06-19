@@ -1,17 +1,37 @@
-<div class="flex items-center justify-center pt-12 pb-5 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-3">
+@if (isLoading) {
+    <div class="max-w-md w-full mx-auto py-5">
+        <div class="text-center mb-5 ">
+            <p-skeleton shape="circle" size="5rem" class="block mx-auto mb-3 justify-items-center"></p-skeleton>
+            <p-skeleton width="70%" height="2rem" class="block mx-auto justify-items-center"></p-skeleton>
+        </div>
+
+        <p-skeleton width="100%" height="1rem" class="block mb-2"></p-skeleton>
+        <p-skeleton width="90%" height="1rem" class="block mb-2 mx-auto"></p-skeleton>
+        <p-skeleton width="95%" height="1rem" class="block mb-5 mx-auto"></p-skeleton>
+
+        <p-skeleton width="100%" height="1rem" class="block mb-2"></p-skeleton>
+        <p-skeleton width="95%" height="1rem" class="block mb-2 mx-auto"></p-skeleton>
+        <p-skeleton width="90%" height="1rem" class="block mb-5 mx-auto"></p-skeleton>
+
+        <p-skeleton width="150px" height="150px" class="block mx-auto mb-5 justify-items-center"></p-skeleton>
+
+    </div>
+
+
+} @else {
+    <div class="max-w-md w-full mx-auto py-5 space-y-5">
         <div class="text-center">
-            <span class="pi pi-check-circle text-emerald-500" style="font-size: 2.5rem"></span>
+            <span class="pi pi-check-circle text-emerald-500" style="font-size: 5rem"></span>
             <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Registro Exitoso</h2>
         </div>
         <p class="text-justify text-sm text-gray-500 mb-3">
-            Hola, <span class="font-medium text-indigo-500">{{ register.name }} {{ register.lastname }},</span> tu
+            Hola, <span class="font-medium text-sky-500">{{ register.name }} {{ register.lastname }},</span> tu
             registro se ha realizado con éxito y ya estás listo para disfrutar del mejor tiempo en Escuela de Verano
             "Kingdom Kids {{ currentDate | date:'YYYY' }}".
         </p>
 
         <p class="text-justify text-sm text-gray-500 mb-3">
-            Te recomendamos <span class="font-medium text-indigo-500">
+            Te recomendamos <span class="font-medium text-sky-500">
             tomar una captura de este Código QR o descargar el archivo para poder registrar tu entrada</span>
             cada día durante el evento.
         </p>
@@ -22,45 +42,47 @@
             <p-button severity="info" (click)="generatePDF()" icon="pi pi-download" label="Descargar QR" />
             <p-button severity="success" [routerLink]="['/']" icon="pi pi-check-circle" label="Volver al inicio" />
         </div>
+
+        <hr>
+
+        <div class="text-justify">
+            <h3 class="text-sky-500 text-xl font-bold">ESCUELA DE VERANO {{ currentDate | date:'YYYY' }} </h3>
+
+            <p class="text-sm text-gray-500">Edades: de 5 a 11 años</p>
+            <p class="text-sm text-gray-500">Fecha del evento: 21 al 25 de Julio</p>
+            <p class="text-sm text-gray-500">Horario: Lunes a Viernes de 09:00 a 13:00 hrs</p>
+            <p class="text-sm text-gray-500">Entrada: Av. 35 Entre Calle 1 y 3 Sur. Colonia Centro</p>
+            <p class="mb-3 text-sm text-gray-500">EVENTO GRATUITO</p>
+
+            <ul class="space-y-3">
+                <li>
+                    <h4 class="text-sky-500">DURANTE LA SEMANA LOS NIÑOS DEBEN TRAER:</h4>
+                    <p class="text-gray-500 text-sm">- Lunch y botella de agua con sus nombres escritos.</p>
+                    <p class="text-gray-500 text-sm">- Si son hermanos traer el lunch por separado, también con su
+                        nombre.</p>
+                    <p class="text-gray-500 text-sm">- Tenis y ropa cómoda.</p>
+                </li>
+
+                <li>
+                    <h4 class="text-sky-500">IMPORTANTE</h4>
+                    <p class="mb-3 text-gray-500 text-sm">Si tu niño(a) presenta gripa, tos, fiebre. Deberá quedarse en
+                        casa. En
+                        caso de detectar síntomas durante la escuela, nos comunicaremos contigo. También agradecemos nos
+                        hagas saber si tu niño(a) tiene alergias o alguna condición de salud.</p>
+                    <p class="mb-5 text-gray-500 text-sm">Diariamente al llegar a recepción debes estar presente con ellos
+                        para recibir el pase con el que podrán recogerlos a la salida.</p>
+                    <p class="text-gray-500 text-sm">¡Apóyanos donando una bolsa de dulces! <br>Podrás entregarlos en el
+                        área de registro.</p>
+                </li>
+
+                <li>
+                    <h4 class="text-sky-500">GRAN CLAUSURA</h4>
+                    <p class="text-gray-500 text-sm">SÁBADO 26 de JULIO A LAS 7PM</p>
+                    <p class="text-gray-500 text-sm">¡Para toda la familia!</p>
+                </li>
+            </ul>
+        </div>
     </div>
-</div>
+}
 
-<div class="flex items-center justify-center pb-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full">
-        <h3 class="text-indigo-600 text-xl font-bold">ESCUELA DE VERANO {{ currentDate | date:'YYYY' }} </h3>
 
-        <p class="text-sm text-gray-500">Edades: de 5 a 11 años</p>
-        <p class="text-sm text-gray-500">Fecha del evento: 21 al 25 de Julio</p>
-        <p class="text-sm text-gray-500">Horario: Lunes a Viernes de 09:00 a 13:00 hrs</p>
-        <p class="text-sm text-gray-500">Entrada: Av. 35 Entre Calle 1 y 3 Sur. Colonia Centro</p>
-        <p class="mb-3 text-sm text-gray-500">EVENTO GRATUITO</p>
-
-        <ul class="space-y-3">
-            <li>
-                <h4 class="text-indigo-600">DURANTE LA SEMANA LOS NIÑOS DEBEN TRAER:</h4>
-                <p class="text-gray-500 text-sm">- Lunch y botella de agua con sus nombres escritos.</p>
-                <p class="text-gray-500 text-sm">- Si son hermanos traer el lunch por separado, también con su
-                    nombre.</p>
-                <p class="text-gray-500 text-sm">- Tenis y ropa cómoda.</p>
-            </li>
-
-            <li>
-                <h4 class="text-indigo-600">IMPORTANTE</h4>
-                <p class="mb-3 text-gray-500 text-sm">Si tu niño(a) presenta gripa, tos, fiebre. Deberá quedarse en
-                    casa. En
-                    caso de detectar síntomas durante la escuela, nos comunicaremos contigo. También agradecemos nos
-                    hagas saber si tu niño(a) tiene alergias o alguna condición de salud.</p>
-                <p class="mb-5 text-gray-500 text-sm">Diariamente al llegar a recepción debes estar presente con ellos
-                    para recibir el pase con el que podrán recogerlos a la salida.</p>
-                <p class="text-gray-500 text-sm">¡Apóyanos donando una bolsa de dulces! <br>Podrás entregarlos en el
-                    área de registro.</p>
-            </li>
-
-            <li>
-                <h4 class="text-indigo-600">GRAN CLAUSURA</h4>
-                <p class="text-gray-500 text-sm">SÁBADO 26 de JULIO A LAS 7PM</p>
-                <p class="text-gray-500 text-sm">¡Para toda la familia!</p>
-            </li>
-        </ul>
-    </div>
-</div>

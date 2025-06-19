@@ -17,6 +17,8 @@ import moment from 'moment';
 import {MessageService} from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {Router} from '@angular/router';
+import {IconFieldModule} from 'primeng/iconfield';
+import {InputIconModule} from 'primeng/inputicon';
 
 @Component({
     selector: 'app-register',
@@ -32,6 +34,8 @@ import {Router} from '@angular/router';
         InputGroupModule,
         InputGroupAddonModule,
         SelectModule,
+        IconFieldModule,
+        InputIconModule,
         ToastModule,
         FormsModule,
         DatePipe,
@@ -129,17 +133,23 @@ export class RegisterComponent implements OnInit {
                     this.isLoading = false;
                     this.router.navigate(['registro', data.register.id]);
                 },
-                error: error => {
+                error: err => {
                     this.isLoading = false;
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: `Ocurrio un error al hacer el registro`,
-                        sticky: true
-                    });
+                    this.registerForm.enable();
+                    for (const error of err.error.errors) {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: error.msg,
+                            sticky: true
+                        });
+                    }
+
                 }
             });
         } else {
+            this.isLoading = false;
+            this.registerForm.enable();
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
