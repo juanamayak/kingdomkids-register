@@ -5,7 +5,11 @@
         </div>
 
         <div>
-            <ngx-scanner-qrcode #scanner (event)="captureQRData($event)" class=h-1></ngx-scanner-qrcode>
+            <ngx-scanner-qrcode
+                #scanner
+                (s)="captureQRData($event)"
+                [constraints]="{vide: {facingMode: {exact:'environment'}}}"
+                class=h-1></ngx-scanner-qrcode>
         </div>
     </div>
 </div>
