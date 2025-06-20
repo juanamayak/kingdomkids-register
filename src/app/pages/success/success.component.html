@@ -1,5 +1,5 @@
 @if (isLoading) {
-    <div class="max-w-md w-full mx-auto py-5">
+    <div class="max-w-md w-full mx-auto p-5">
         <div class="text-center mb-5 ">
             <p-skeleton shape="circle" size="5rem" class="block mx-auto mb-3 justify-items-center"></p-skeleton>
             <p-skeleton width="70%" height="2rem" class="block mx-auto justify-items-center"></p-skeleton>
@@ -19,28 +19,31 @@
 
 
 } @else {
-    <div class="max-w-md w-full mx-auto py-5 space-y-5">
+    <div class="max-w-md w-full mx-auto p-5 space-y-5">
         <div class="text-center">
             <span class="pi pi-check-circle text-emerald-500" style="font-size: 5rem"></span>
             <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Registro Exitoso</h2>
         </div>
         <p class="text-justify text-sm text-gray-500 mb-3">
-            Hola, <span class="font-medium text-sky-500">{{ register.name }} {{ register.lastname }},</span> tu
+            Hola, <span class="font-bold text-sky-500">{{ register.name }} {{ register.lastname }},</span> tu
             registro se ha realizado con éxito y ya estás listo para disfrutar del mejor tiempo en Escuela de Verano
             "Kingdom Kids {{ currentDate | date:'YYYY' }}".
         </p>
 
         <p class="text-justify text-sm text-gray-500 mb-3">
-            Te recomendamos <span class="font-medium text-sky-500">
-            tomar una captura de este Código QR o descargar el archivo para poder registrar tu entrada</span>
-            cada día durante el evento.
+
+        </p>
+
+        <span class="text-justify font-bold text-red-500">Toma una captura de tu Código QR</span>
+        <p class="text-justify font-bold text-red-500 mb-3">
+           Es muy importante que lo conserves para poder hacer el registro de tu entrada diaria.
         </p>
 
         <img src="data:image/jpeg;base64,{{qr}}" class="w-2/4 mx-auto" #qrImg>
 
         <div class="flex justify-between">
-            <p-button severity="info" (click)="generatePDF()" icon="pi pi-download" label="Descargar QR" />
-            <p-button severity="success" [routerLink]="['/']" icon="pi pi-check-circle" label="Volver al inicio" />
+            <p-button severity="info" (click)="generatePDF()" icon="pi pi-download" label="Descargar QR"/>
+            <p-button severity="success" [routerLink]="['/']" icon="pi pi-check-circle" label="Volver al inicio"/>
         </div>
 
         <hr>
@@ -69,7 +72,8 @@
                         casa. En
                         caso de detectar síntomas durante la escuela, nos comunicaremos contigo. También agradecemos nos
                         hagas saber si tu niño(a) tiene alergias o alguna condición de salud.</p>
-                    <p class="mb-5 text-gray-500 text-sm">Diariamente al llegar a recepción debes estar presente con ellos
+                    <p class="mb-5 text-gray-500 text-sm">Diariamente al llegar a recepción debes estar presente con
+                        ellos
                         para recibir el pase con el que podrán recogerlos a la salida.</p>
                     <p class="text-gray-500 text-sm">¡Apóyanos donando una bolsa de dulces! <br>Podrás entregarlos en el
                         área de registro.</p>
