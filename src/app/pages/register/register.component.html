@@ -11,13 +11,21 @@
         </div>
         <div class="shadow-lg rounded-2xl px-5 py-10 bg-white">
             <form [formGroup]="registerForm" class="space-y-5">
+                <p-message severity="secondary" class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p-message>
                 <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <input pInputText type="text" formControlName="name" placeholder="Nombre(s)"/>
-                    <input pInputText type="text" formControlName="lastname" placeholder="Apellidos"/>
+                    <div class="flex flex-col">
+                        <label for="username">Nombre(s) <sup class="text-red-500">*</sup></label>
+                        <input pInputText type="text" formControlName="name"/>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="username">Apellidos <sup class="text-red-500">*</sup></label>
+                        <input pInputText type="text" formControlName="lastname" placeholder="Apellidos"/>
+                    </div>
                 </div>
 
                 <div>
-                    <label for="">Fecha de nacimiento</label>
+                    <label for="">Fecha de nacimiento <sup class="text-red-500">*</sup></label>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-5">
                         <input pInputText type="text" formControlName="birthday_day" placeholder="Día"/>
                         <p-select
@@ -36,21 +44,28 @@
                     </div>
                 </div>
 
-                <p-iconfield>
-                    <input type="text" pInputText formControlName="address" placeholder="Dirección"/>
-                    <p-inputicon class="pi pi-map-marker" />
-                </p-iconfield>
+                <div class="flex flex-col">
+                    <label for="username">Dirección <sup class="text-red-500">*</sup></label>
+                    <input type="text" pInputText formControlName="address"/>
+                </div>
 
                 <hr>
 
                 <h3 class="font-semibold text-xl">Información de los padres</h3>
+                <div>
+                    <p-message severity="secondary" class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p-message>
+                </div>
 
                 <div formArrayName="parents" class="space-y-5">
-                    @for (authorized of parents.controls; track authorized) {
+                    @for (parent of parents.controls; track parent) {
                         <div>
-                            <label for="">Información de {{ authorized.value.type }}</label>
-                            <div [formGroupName]="$index" class="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-5">
+                            <label for="">Información de {{ parent.value.type }} <sup class="text-red-500">*</sup></label>
+                            <div [formGroupName]="$index" class="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-5">
                                 <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"/>
+                                <p-iconfield>
+                                    <input pInputText type="text" formControlName="email" placeholder="Correo electrónico"/>
+                                    <p-inputicon class="pi pi-at" />
+                                </p-iconfield>
                                 <p-iconfield>
                                     <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
                                     <p-inputicon class="pi pi-phone" />
@@ -63,6 +78,7 @@
                 <hr>
 
                 <h3 class="font-semibold text-xl">Personas autorizadas para entregar y recoger al niño/a</h3>
+
 
                 <div formArrayName="authorized_person" class="space-y-5">
                     @for (authorized of authorized_person.controls; track authorized) {
@@ -84,9 +100,11 @@
                 <hr>
 
                 <h3 class="font-semibold text-xl">Información importante</h3>
-
+                <div>
+                    <p-message severity="secondary" class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p-message>
+                </div>
                 <div class="space-y-3">
-                    <label>¿El niño/a es alérgico a algún alimento?</label>
+                    <label>¿El niño/a es alérgico a algún alimento? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
                             <p-radio-button [value]="1" formControlName="allergy"/>
@@ -101,14 +119,21 @@
 
                     @if (allergy.value) {
                         <div>
-                            <label for="allergy_description">Por favor, indíquelo a continuación.</label>
+                            <label for="allergy_description">Por favor, indíquelo a continuación. <sup class="text-red-500">*</sup></label>
                             <input type="text" pInputText formControlName="allergy_description" class="w-full"/>
                         </div>
                     }
                 </div>
 
                 <div class="space-y-3">
-                    <label>¿Su hijo(a) cuenta con alguna condición médica, de desarrollo o necesidad específica?</label>
+                    <div class="flex flex-col gap-1">
+                        <label>¿Su hijo(a) cuenta con alguna condición médica, de desarrollo o necesidad específica? <sup class="text-red-500">*</sup></label>
+                        <small class="text-gray-500 leading-3">
+                            Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora,
+                            intelectual
+                            o de comunicación.
+                        </small>
+                    </div>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
                             <p-radio-button [value]="1" formControlName="medical_condition"/>
@@ -119,16 +144,13 @@
                             <p-radio-button [value]="0" formControlName="medical_condition"/>
                             <label class="ml-2">No</label>
                         </div>
+
                     </div>
                     @if (medical_condition.value) {
                         <div>
-                            <label for="allergy_description">Por favor, indíquelo a continuación.</label>
+                            <label for="allergy_description">Por favor, indíquelo a continuación. <sup class="text-red-500">*</sup></label>
                             <input type="text" formControlName="medical_condition_description" pInputText class="w-full"/>
-                            <small class="text-gray-500 leading-3">
-                                Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora,
-                                intelectual
-                                o de comunicación.
-                            </small>
+
                         </div>
                     }
 
@@ -139,7 +161,7 @@
                 <h3 class="font-semibold text-xl">Información adicional</h3>
 
                 <div class="space-y-3">
-                    <label>¿Es miembro de Mundo de Fe?</label>
+                    <label>¿Es miembro de Mundo de Fe? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
                             <p-radio-button [value]="1" formControlName="mdf_member"/>
@@ -156,7 +178,7 @@
                 <hr>
 
                 <div class="space-y-3">
-                    <label>¿Asiste a otra iglesia cristiana?</label>
+                    <label>¿Asiste a otra iglesia cristiana? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
                             <p-radio-button [value]="1" formControlName="another_church"/>
@@ -170,7 +192,7 @@
                     </div>
                     @if (another_church.value) {
                         <div>
-                            <label>Escriba el nombre de la iglesia</label>
+                            <label>Escriba el nombre de la iglesia <sup class="text-red-500">*</sup></label>
                             <input type="text" formControlName="another_church_name" pInputText class="w-full"/>
                         </div>
                     }
@@ -179,7 +201,7 @@
                 <hr>
 
                 <div class="space-y-3">
-                    <label>¿Lo invito un miembro de Mundo de Fe Playa?</label>
+                    <label>¿Lo invito un miembro de Mundo de Fe Playa? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
                             <p-radio-button [value]="1" formControlName="invited"/>
@@ -193,7 +215,7 @@
                     </div>
                     @if (invited.value) {
                         <div>
-                            <label>Escriba el nombre aquí</label>
+                            <label>Escriba el nombre aquí <sup class="text-red-500">*</sup></label>
                             <input type="text" formControlName="invite_name" pInputText class="w-full"/>
                         </div>
                     }

@@ -19,6 +19,7 @@ import {ToastModule} from 'primeng/toast';
 import {Router} from '@angular/router';
 import {IconFieldModule} from 'primeng/iconfield';
 import {InputIconModule} from 'primeng/inputicon';
+import {MessageModule} from 'primeng/message';
 
 @Component({
     selector: 'app-register',
@@ -38,6 +39,7 @@ import {InputIconModule} from 'primeng/inputicon';
         InputIconModule,
         ToastModule,
         FormsModule,
+        MessageModule,
         DatePipe,
     ],
     providers: [MessageService],
@@ -78,25 +80,27 @@ export class RegisterComponent implements OnInit {
             parents: this.formBuilder.array([
                 this.formBuilder.group({
                     full_name: ['', Validators.required],
+                    email: ['', Validators.required],
                     cellphone: ['', Validators.required],
                     type: ['Mamá', Validators.required],
                 }),
                 this.formBuilder.group({
                     full_name: ['', Validators.required],
+                    email: ['', Validators.required],
                     cellphone: ['', Validators.required],
                     type: ['Papá', Validators.required],
                 })
             ]),
             authorized_person: this.formBuilder.array([
                 this.formBuilder.group({
-                    full_name: ['', Validators.required],
-                    cellphone: ['', Validators.required],
-                    relationship: ['', Validators.required],
+                    full_name: [''],
+                    cellphone: [''],
+                    relationship: [''],
                 }),
                 this.formBuilder.group({
-                    full_name: ['', Validators.required],
-                    cellphone: ['', Validators.required],
-                    relationship: ['', Validators.required],
+                    full_name: [''],
+                    cellphone: [''],
+                    relationship: [''],
                 })
             ]),
             allergy: [null, Validators.required],
@@ -140,7 +144,7 @@ export class RegisterComponent implements OnInit {
                         this.messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: error.msg,
+                            detail: error.message,
                             sticky: true
                         });
                     }

@@ -55,7 +55,7 @@ export class SuccessComponent implements OnInit {
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Error',
-                        detail: error.msg,
+                        detail: error.message,
                         sticky: true
                     });
                 }
