@@ -19,7 +19,11 @@
                     "options": {
                         "allowedCommonJsDependencies": [
                             "html2canvas",
-                            "moment"
+                            "moment",
+                            "jspdf-autotable",
+                            "raf",
+                            "core-js",
+                            "rgbcolor"
                         ],
                         "outputPath": "dist",
                         "index": "src/index.html",
