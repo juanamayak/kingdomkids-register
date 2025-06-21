@@ -5,6 +5,10 @@
 
 @import "primeicons/primeicons.css";
 
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
 label{
     @apply text-slate-600 font-medium text-sm;
 }

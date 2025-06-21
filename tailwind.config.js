@@ -5,15 +5,7 @@ module.exports = {
         "./src/**/*.{html,ts}",
     ],
     theme: {
-        fontFamily: {
-            sans: [
-                '"Inter"',
-                {
-                    fontFeatureSettings: '"cv11", "ss01"',
-                    fontVariationSettings: '"opsz" 32'
-                },
-            ],
-        },
+        extend: {},
     },
     plugins: [PrimeUI],
 }
