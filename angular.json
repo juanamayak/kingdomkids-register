@@ -23,7 +23,8 @@
                             "jspdf-autotable",
                             "raf",
                             "core-js",
-                            "rgbcolor"
+                            "rgbcolor",
+                            "sweetalert2"
                         ],
                         "outputPath": "dist",
                         "index": "src/index.html",
