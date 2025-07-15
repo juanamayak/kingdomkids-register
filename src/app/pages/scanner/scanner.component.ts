@@ -2,10 +2,12 @@ import {AfterViewInit, Component, inject, OnDestroy, OnInit, ViewChild} from '@a
 import {Router} from '@angular/router';
 import {NgxScannerQrcodeComponent} from 'ngx-scanner-qrcode';
 import {Html5Qrcode} from 'html5-qrcode';
+import {JsonPipe} from '@angular/common';
 
 @Component({
     selector: 'app-scanner',
     imports: [
+        JsonPipe
 
     ],
     templateUrl: './scanner.component.html',
@@ -24,7 +26,7 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
         }
     };
 
-    devices: MediaDeviceInfo[] = [];
+    devices: any[] = [];
     selectedDeviceId: string | null = null;
 
     private html5QrCode!: Html5Qrcode;
@@ -33,7 +35,8 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
         this.html5QrCode = new Html5Qrcode("reader");
 
         const devices = await Html5Qrcode.getCameras();
-        const backCamera = devices.find(d => d.label.toLowerCase().includes('back')) || devices[0];
+
+        const backCamera = devices.find(d => d.label.toLowerCase().includes('cámara trasera')) || devices[0];
 
         this.html5QrCode.start(
             backCamera.id,
