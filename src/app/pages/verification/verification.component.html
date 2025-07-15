@@ -1,0 +1,73 @@
+@if (register) {
+    <div class="p-3 bg-white overflow-hidden">
+        @if (alert) {
+            <p-message severity="success">
+                Se optuvo el registro correctamente
+            </p-message>
+        }
+
+        <div>
+            <div class="px-4 sm:px-0">
+                <h3 class="text-base/7 mt-5 font-semibold text-gray-900">{{ register.name }} {{ register.lastname }}</h3>
+            </div>
+            <div class="mt-6 border-t border-gray-100">
+                <dl class="divide-y divide-gray-100">
+                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt class="text-sm/6 font-medium text-gray-900">Edad del niño/a</dt>
+                        <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ register.age }} años</dd>
+                    </div>
+                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt class="text-sm/6 font-medium text-gray-900">Información de los padres</dt>
+                        <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+                            @for (parent of register.parents; track parent) {
+                                <div class="space-y-3 mb-3">
+                                    <label class="font-bold">{{ parent.type }}</label>
+                                    <dl class="max-w-md text-gray-900 divide-y divide-gray-200">
+                                        <div class="flex flex-col pb-1">
+                                            <dt class="mb-1 text-gray-500 md:text-sm">Nombre </dt>
+                                            <dd class="text-sm">{{parent.full_name}}</dd>
+                                        </div>
+                                        <div class="flex flex-col py-1">
+                                            <dt class="mb-1 text-gray-500 md:text-sm">Correo electrónico</dt>
+                                            <dd class="text-sm">{{  parent.email }}</dd>
+                                        </div>
+                                        <div class="flex flex-col pt-1">
+                                            <dt class="mb-1 text-gray-500 md:text-sm">Número celular</dt>
+                                            <dd class="text-sm">{{ parent.cellphone }}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            }
+                        </dd>
+                    </div>
+                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt class="text-sm/6 font-medium text-gray-900">Personas autorizadas</dt>
+                        <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+                            @for (authorize of register['authorized']; track authorize) {
+                                <div class="space-y-3 mb-3">
+                                    <label class="font-bold uppercase">{{ authorize.relationship }}</label>
+                                    <dl class="max-w-md text-gray-900 divide-y divide-gray-200">
+                                        <div class="flex flex-col pb-1">
+                                            <dt class="mb-1 text-gray-500 md:text-sm">Nombre </dt>
+                                            <dd class="text-sm">{{authorize.full_name}}</dd>
+                                        </div>
+                                        <div class="flex flex-col pt-1">
+                                            <dt class="mb-1 text-gray-500 md:text-sm">Número celular</dt>
+                                            <dd class="text-sm">{{ authorize.cellphone }}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            }
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="text-center">
+
+            <p-button label="Registrar entrada" severity="success" (click)="checkin(register.id)"/>
+        </div>
+    </div>
+
+}

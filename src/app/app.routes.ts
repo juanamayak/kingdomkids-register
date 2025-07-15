@@ -4,6 +4,7 @@ import {SuccessComponent} from './pages/success/success.component';
 import {ScannerComponent} from './pages/scanner/scanner.component';
 import {HomeComponent} from './pages/home/home.component';
 import {FinderComponent} from './pages/finder/finder.component';
+import {VerificationComponent} from './pages/verification/verification.component';
 
 export const routes: Routes = [
     {
@@ -25,5 +26,9 @@ export const routes: Routes = [
     {
         path: 'scanner',
         component: ScannerComponent,
+    },
+    {
+        path: 'verificacion/:id',
+        component: VerificationComponent,
     }
 ];

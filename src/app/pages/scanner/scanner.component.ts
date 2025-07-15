@@ -16,6 +16,13 @@ export class ScannerComponent implements OnInit{
 
     private router = inject(Router);
 
+    // Usa facingMode 'environment' para cámara trasera
+    cameraConstraints: MediaStreamConstraints = {
+        video: {
+            facingMode: { ideal: 'environment' } // o exact si quieres forzar
+        }
+    };
+
     ngOnInit(): void {
         this.cameraScanner.start();
     }
@@ -23,7 +30,7 @@ export class ScannerComponent implements OnInit{
     captureQRData(event: any){
         if (event){
             this.cameraScanner.stop()
-            this.router.navigate([event])
+            this.router.navigate([event[0].value])
         }
     }
 }

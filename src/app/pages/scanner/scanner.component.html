@@ -7,9 +7,9 @@
         <div>
             <ngx-scanner-qrcode
                 #scanner
-                (s)="captureQRData($event)"
-                [constraints]="{vide: {facingMode: {exact:'environment'}}}"
-                class=h-1></ngx-scanner-qrcode>
+                (event)="captureQRData($event)"
+                [constraints]="cameraConstraints">
+            </ngx-scanner-qrcode>
         </div>
     </div>
 </div>
