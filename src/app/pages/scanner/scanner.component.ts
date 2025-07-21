@@ -6,10 +6,7 @@ import {JsonPipe} from '@angular/common';
 
 @Component({
     selector: 'app-scanner',
-    imports: [
-        JsonPipe
-
-    ],
+    imports: [],
     templateUrl: './scanner.component.html',
     styleUrl: './scanner.component.scss'
 })
