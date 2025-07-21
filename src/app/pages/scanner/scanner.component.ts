@@ -36,7 +36,23 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
 
         const devices = await Html5Qrcode.getCameras();
 
-        const backCamera = devices.find(d => d.label.toLowerCase().includes('cámara trasera')) || devices[0];
+        // Palabras clave que pueden aparecer en la etiqueta (en distintos idiomas/navegadores)
+        const backCameraKeywords = [
+            'back', 'rear', 'environment',      // Inglés
+            'cámara trasera', 'camara trasera', // Español
+            'cámara posterior', 'camara posterior',
+            'cámara principal', 'camara principal'
+        ];
+
+        // Intentar encontrar la cámara trasera por label
+        let backCamera = devices.find(d =>
+            d.label && backCameraKeywords.some(k => d.label.toLowerCase().includes(k))
+        );
+
+        // Si no encontramos ninguna por nombre, usamos la última (suele ser trasera en móviles)
+        if (!backCamera) {
+            backCamera = devices[devices.length - 1];
+        }
 
         this.html5QrCode.start(
             backCamera.id,
