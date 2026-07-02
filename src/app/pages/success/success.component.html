@@ -27,7 +27,7 @@
         <p class="text-justify text-sm text-gray-500 mb-3">
             Hola, <span class="font-bold text-sky-500">{{ register.name }} {{ register.lastname }},</span> tu
             registro se ha realizado con éxito y ya estás listo para disfrutar del mejor tiempo en Escuela de Verano
-            "Kingdom Kids {{ currentDate | date:'YYYY' }}".
+            "Kingdom Kids {{ currentDate | date:'y' }}".
         </p>
 
         <p class="text-justify text-sm text-gray-500 mb-3">
@@ -49,12 +49,17 @@
         <hr>
 
         <div class="text-justify">
-            <h3 class="text-sky-500 text-xl font-bold">ESCUELA DE VERANO {{ currentDate | date:'YYYY' }} </h3>
+            <h3 class="text-sky-500 text-xl font-bold">ESCUELA DE VERANO {{ currentDate | date:'y' }} </h3>
 
-            <p class="text-sm text-gray-500">Edades: de 5 a 11 años</p>
-            <p class="text-sm text-gray-500">Fecha del evento: 21 al 25 de Julio</p>
+            <p class="text-sm text-gray-500">Edades: de 5 a 11 años cumplidos</p>
+            <p class="text-sm text-gray-500">Fecha del evento: Lunes 20 al Viernes 24 de Julio</p>
             <p class="text-sm text-gray-500">Horario: Lunes a Viernes de 09:00 a 13:00 hrs</p>
-            <p class="text-sm text-gray-500">Entrada: Av. 35 Entre Calle 1 y 3 Sur. Colonia Centro</p>
+            <p class="text-sm text-gray-500">Estamos ubicados en: Calle 78 Norte Lote 001, esquina Diagonal 65 en avenida 28 de Julio.</p>
+            <p class="text-sm text-gray-500">
+                <a href="https://maps.app.goo.gl/aKLW4am9aipD7sz96?g_st=ipc" target="_blank" rel="noopener noreferrer" class="text-sky-500 underline hover:text-sky-700">
+                    Ver en Google Maps
+                </a>
+            </p>
             <p class="mb-3 text-sm text-gray-500">EVENTO GRATUITO</p>
 
             <ul class="space-y-3">
@@ -81,7 +86,7 @@
 
                 <li>
                     <h4 class="text-sky-500">GRAN CLAUSURA</h4>
-                    <p class="text-gray-500 text-sm">SÁBADO 26 de JULIO A LAS 7PM</p>
+                    <p class="text-gray-500 text-sm">SÁBADO 25 DE JULIO A LAS 7PM</p>
                     <p class="text-gray-500 text-sm">¡Para toda la familia!</p>
                 </li>
             </ul>

@@ -1,25 +1,48 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {DatePipe} from '@angular/common';
-import {FloatLabelModule} from 'primeng/floatlabel';
-import {InputTextModule} from 'primeng/inputtext';
-import {DatePickerModule} from 'primeng/datepicker';
-import {CheckboxModule} from 'primeng/checkbox';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Select, SelectModule} from 'primeng/select';
-import {InputGroupModule} from 'primeng/inputgroup';
-import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {Months} from '../../constants/months';
-import {KidsService} from '../../services/kids.service';
-import moment from 'moment';
-import {MessageService} from 'primeng/api';
-import {ToastModule} from 'primeng/toast';
-import {Router} from '@angular/router';
-import {IconFieldModule} from 'primeng/iconfield';
-import {InputIconModule} from 'primeng/inputicon';
-import {MessageModule} from 'primeng/message';
+import { Component, inject, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DatePipe } from '@angular/common';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import {
+    AbstractControl,
+    FormArray,
+    FormBuilder,
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators
+} from '@angular/forms';
+import { SelectModule } from 'primeng/select';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { Months } from '../../constants/months';
+import { KidsService, RegisterPayload } from '../../services/kids.service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { Router } from '@angular/router';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { MessageModule } from 'primeng/message';
+import { differenceInYears, parseISO } from 'date-fns';
+
+interface ParentFormControls {
+    full_name: FormControl<string>;
+    email: FormControl<string>;
+    cellphone: FormControl<string>;
+    type: FormControl<string>;
+}
+
+interface AuthorizedPersonFormControls {
+    full_name: FormControl<string>;
+    cellphone: FormControl<string>;
+    relationship: FormControl<string>;
+}
+
+const ALLOWED_AGES = [5, 6, 7, 8, 9, 10, 11];
 
 @Component({
     selector: 'app-register',
@@ -28,7 +51,6 @@ import {MessageModule} from 'primeng/message';
         CardModule,
         FloatLabelModule,
         InputTextModule,
-        DatePickerModule,
         CheckboxModule,
         RadioButtonModule,
         ReactiveFormsModule,
@@ -46,179 +68,254 @@ import {MessageModule} from 'primeng/message';
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent {
 
     private kidsService = inject(KidsService);
-    private formBuilder = inject(FormBuilder);
+    private fb = inject(FormBuilder);
     private messageService = inject(MessageService);
     private router = inject(Router);
 
-    public registerForm: any;
+    public isLoading = signal(false);
+    public ageWarning = signal<string | null>(null);
 
     public currentDate = new Date();
+    public months = Months;
+    public days = this.generateDays();
+    public years = this.generateYears();
 
-    public isLoading = false;
+    public registerForm = this.buildForm();
 
-    public months = Months
-    public years: any;
-
-    ngOnInit() {
-        this.years = this.getYears();
-        this.initRegisterForm();
-    }
-
-    initRegisterForm() {
-        this.registerForm = this.formBuilder.group({
-            name: ['', Validators.required],
-            lastname: ['', Validators.required],
-            birthday_day: ['', Validators.required],
-            birthday_month: ['', Validators.required],
-            birthday_year: ['', Validators.required],
-            birthday: [''],
-            age: [''],
-            address: ['', Validators.required],
-            parents: this.formBuilder.array([
-                this.formBuilder.group({
-                    full_name: ['', Validators.required],
-                    email: ['', Validators.required],
-                    cellphone: ['', Validators.required],
-                    type: ['Mamá', Validators.required],
-                }),
-                this.formBuilder.group({
-                    full_name: ['', Validators.required],
-                    email: ['', Validators.required],
-                    cellphone: ['', Validators.required],
-                    type: ['Papá', Validators.required],
-                })
+    private buildForm() {
+        return this.fb.group({
+            name: this.fb.nonNullable.control('', Validators.required),
+            lastname: this.fb.nonNullable.control('', Validators.required),
+            birthday_day: this.fb.nonNullable.control('', Validators.required),
+            birthday_month: this.fb.nonNullable.control('', Validators.required),
+            birthday_year: this.fb.nonNullable.control('', Validators.required),
+            birthday: this.fb.nonNullable.control(''),
+            age: this.fb.control<number | null>(null),
+            address: this.fb.nonNullable.control('', Validators.required),
+            parents: this.fb.array([
+                this.buildParentGroup('Mamá'),
+                this.buildParentGroup('Papá'),
             ]),
-            authorized_person: this.formBuilder.array([
-                this.formBuilder.group({
-                    full_name: [''],
-                    cellphone: [''],
-                    relationship: [''],
-                }),
-                this.formBuilder.group({
-                    full_name: [''],
-                    cellphone: [''],
-                    relationship: [''],
-                })
+            authorized_person: this.fb.array([
+                this.buildAuthorizedGroup(),
+                this.buildAuthorizedGroup(),
             ]),
-            allergy: [null, Validators.required],
-            allergy_description: [''],
-            medical_condition: [null, Validators.required],
-            medical_condition_description: [''],
-            mdf_member: [null, Validators.required],
-            another_church: [null, Validators.required],
-            another_church_name: [''],
-            invited: [null, Validators.required],
-            invite_name: [''],
-            terms_condition: ['', Validators.required],
+            allergy: this.fb.control<number | null>(null, Validators.required),
+            allergy_description: this.fb.nonNullable.control(''),
+            medical_condition: this.fb.control<number | null>(null, Validators.required),
+            medical_condition_description: this.fb.nonNullable.control(''),
+            mdf_member: this.fb.control<number | null>(null, Validators.required),
+            another_church: this.fb.control<number | null>(null, Validators.required),
+            another_church_name: this.fb.nonNullable.control(''),
+            invited: this.fb.control<number | null>(null, Validators.required),
+            invite_name: this.fb.nonNullable.control(''),
+            terms_condition: this.fb.nonNullable.control(false, Validators.requiredTrue),
         });
     }
 
-    register() {
-        this.isLoading = true;
-        this.registerForm.disable();
-
-        const year = this.registerForm.get('birthday_year').value;
-        const month = this.registerForm.get('birthday_month').value;
-        const day = this.registerForm.get('birthday_day').value;
-        this.registerForm.controls.birthday.setValue(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
-
-        const birthdate = new Date(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
-        var timeDiff = Math.abs(Date.now() - birthdate.getTime());
-        let age = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365.25);
-        const allowAges = [5, 6, 7, 8, 9, 10, 11];
-        if (allowAges.includes(age)) {
-            this.registerForm.controls.age.setValue(age);
-            const data = this.registerForm.value;
-            this.kidsService.register(data).subscribe({
-                next: data => {
-                    this.isLoading = false;
-                    this.router.navigate(['success', data.register.id]);
-                },
-                error: err => {
-                    this.isLoading = false;
-                    this.registerForm.enable();
-                    for (const error of err.error.errors) {
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: error.message,
-                            sticky: true
-                        });
-                    }
-
-                }
-            });
-        } else {
-            this.isLoading = false;
-            this.registerForm.enable();
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.`,
-                sticky: true,
-            });
-        }
+    private buildParentGroup(type: string): FormGroup<ParentFormControls> {
+        return this.fb.group<ParentFormControls>({
+            full_name: this.fb.nonNullable.control('', Validators.required),
+            email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+            cellphone: this.fb.nonNullable.control('', Validators.required),
+            type: this.fb.nonNullable.control(type, Validators.required),
+        });
     }
 
-    calculateAge() {
-        const year = this.registerForm.get('birthday_year').value;
-        const month = this.registerForm.get('birthday_month').value;
-        const day = this.registerForm.get('birthday_day').value;
-        const birthdate = new Date(moment(year + '-' + month + '-' + day).format('YYYY-MM-DD'));
-        var timeDiff = Math.abs(Date.now() - birthdate.getTime());
-        let age = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365.25);
-        const allowAges = [5, 6, 7, 8, 9, 10, 11];
-        if (!allowAges.includes(age)) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `La edad del niño/a es ${age}. No cumple con el rango de edades permitidos para el registro.`,
-                sticky: true
-            });
-        }
+    private buildAuthorizedGroup(): FormGroup<AuthorizedPersonFormControls> {
+        return this.fb.group<AuthorizedPersonFormControls>({
+            full_name: this.fb.nonNullable.control(''),
+            cellphone: this.fb.nonNullable.control(''),
+            relationship: this.fb.nonNullable.control(''),
+        });
     }
 
-    private getYears() {
-        const years = [];
-        const dateStart = moment('2009-01-01');
-        const dateEnd = moment().add(30, 'y');
-        while (dateEnd.diff(dateStart, 'years') >= 0) {
-            years.push(dateStart.format('YYYY'));
-            dateStart.add(1, 'year');
+    private generateDays(): string[] {
+        return Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+    }
+
+    private generateYears(): string[] {
+        const currentYear = new Date().getFullYear();
+        const minBirthYear = currentYear - 11;
+        const maxBirthYear = currentYear - 5;
+        const years: string[] = [];
+        for (let y = maxBirthYear; y >= minBirthYear; y--) {
+            years.push(String(y));
         }
         return years;
     }
 
-    get parents() {
-        return this.registerForm.get("parents") as FormArray
+    private computeAge(): number {
+        const year = this.registerForm.get('birthday_year')!.value;
+        const month = this.registerForm.get('birthday_month')!.value;
+        const day = this.registerForm.get('birthday_day')!.value;
+        if (!year || !month || !day) return -1;
+        const birthdate = parseISO(`${year}-${month}-${day}`);
+        return differenceInYears(new Date(), birthdate);
     }
 
-    get allergy() {
-        return this.registerForm.get("allergy");
+    // Llamado desde el template cuando cualquier parte de la fecha cambia
+    onBirthdayChange(): void {
+        const year = this.registerForm.get('birthday_year')!.value;
+        const month = this.registerForm.get('birthday_month')!.value;
+        const day = this.registerForm.get('birthday_day')!.value;
+        if (!year || !month || !day) return;
+
+        const age = this.computeAge();
+        if (!ALLOWED_AGES.includes(age)) {
+            this.ageWarning.set(`La edad calculada es ${age} año(s). Solo se aceptan niños de 5 a 11 años.`);
+        } else {
+            this.ageWarning.set(null);
+        }
     }
 
-    get medical_condition() {
-        return this.registerForm.get("medical_condition");
+    onAllergyChange(value: number): void {
+        const control = this.registerForm.get('allergy_description')!;
+        if (value === 1) {
+            control.addValidators(Validators.required);
+        } else {
+            control.clearValidators();
+            control.setValue('');
+        }
+        control.updateValueAndValidity();
     }
 
-    get mdf_member() {
-        return this.registerForm.get("mdf_member");
+    onMedicalConditionChange(value: number): void {
+        const control = this.registerForm.get('medical_condition_description')!;
+        if (value === 1) {
+            control.addValidators(Validators.required);
+        } else {
+            control.clearValidators();
+            control.setValue('');
+        }
+        control.updateValueAndValidity();
     }
 
-    get another_church() {
-        return this.registerForm.get("another_church");
+    onAnotherChurchChange(value: number): void {
+        const control = this.registerForm.get('another_church_name')!;
+        if (value === 1) {
+            control.addValidators(Validators.required);
+        } else {
+            control.clearValidators();
+            control.setValue('');
+        }
+        control.updateValueAndValidity();
     }
 
-    get invited() {
-        return this.registerForm.get("invited");
+    onInvitedChange(value: number): void {
+        const control = this.registerForm.get('invite_name')!;
+        if (value === 1) {
+            control.addValidators(Validators.required);
+        } else {
+            control.clearValidators();
+            control.setValue('');
+        }
+        control.updateValueAndValidity();
     }
 
-    get authorized_person() {
-        return this.registerForm.get("authorized_person") as FormArray
+    // Devuelve true si el campo del formulario principal es inválido y fue tocado
+    isInvalid(field: string): boolean {
+        const control = this.registerForm.get(field);
+        return !!(control?.invalid && control?.touched);
     }
 
+    // Devuelve true si un campo dentro del FormArray de padres es inválido y fue tocado
+    isParentInvalid(index: number, field: string): boolean {
+        const control = this.parents.at(index).get(field);
+        return !!(control?.invalid && control?.touched);
+    }
 
+    // Devuelve el mensaje de error del campo dentro del FormArray de padres
+    getParentError(index: number, field: string): string {
+        const control = this.parents.at(index).get(field);
+        if (control?.errors?.['required']) return 'Este campo es obligatorio.';
+        if (control?.errors?.['email']) return 'Ingresa un correo electrónico válido.';
+        return '';
+    }
+
+    register(): void {
+        // Muestra todos los errores de validación si el formulario está incompleto
+        if (this.registerForm.invalid) {
+            this.registerForm.markAllAsTouched();
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Formulario incompleto',
+                detail: 'Por favor, completa todos los campos obligatorios.',
+                life: 5000,
+            });
+            return;
+        }
+
+        const age = this.computeAge();
+        if (!ALLOWED_AGES.includes(age)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Edad no permitida',
+                detail: `La edad del niño/a es ${age} año(s). El rango permitido es de 5 a 11 años.`,
+                sticky: true,
+            });
+            return;
+        }
+
+        const year = this.registerForm.get('birthday_year')!.value;
+        const month = this.registerForm.get('birthday_month')!.value;
+        const day = this.registerForm.get('birthday_day')!.value;
+        this.registerForm.get('birthday')!.setValue(`${year}-${month}-${day}`);
+        this.registerForm.get('age')!.setValue(age);
+
+        this.isLoading.set(true);
+        this.registerForm.disable();
+
+        const data = this.registerForm.getRawValue() as RegisterPayload;
+
+        this.kidsService.register(data).subscribe({
+            next: (response) => {
+                this.isLoading.set(false);
+                this.router.navigate(['success', response.register.id]);
+            },
+            error: (err: { error: { errors: { message: string }[] } }) => {
+                this.isLoading.set(false);
+                this.registerForm.enable();
+                for (const error of err.error.errors) {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message,
+                        sticky: true,
+                    });
+                }
+            }
+        });
+    }
+
+    get parents(): FormArray<FormGroup<ParentFormControls>> {
+        return this.registerForm.get('parents') as FormArray<FormGroup<ParentFormControls>>;
+    }
+
+    get authorized_person(): FormArray<FormGroup<AuthorizedPersonFormControls>> {
+        return this.registerForm.get('authorized_person') as FormArray<FormGroup<AuthorizedPersonFormControls>>;
+    }
+
+    get allergy(): AbstractControl {
+        return this.registerForm.get('allergy')!;
+    }
+
+    get medical_condition(): AbstractControl {
+        return this.registerForm.get('medical_condition')!;
+    }
+
+    get mdf_member(): AbstractControl {
+        return this.registerForm.get('mdf_member')!;
+    }
+
+    get another_church(): AbstractControl {
+        return this.registerForm.get('another_church')!;
+    }
+
+    get invited(): AbstractControl {
+        return this.registerForm.get('invited')!;
+    }
 }

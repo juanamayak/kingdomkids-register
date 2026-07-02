@@ -3,7 +3,7 @@
         <div class="mx-auto mb-5">
             <img src="logo.png" alt="Kingdom Kids Logo" class="w-1/3 mx-auto lg:w-1/2">
             <h2 class="text-center text-3xl font-extrabold">
-                Kingdom Kids {{ currentDate | date:'YYYY' }}
+                Kingdom Kids {{ currentDate | date:'y' }}
             </h2>
             <p class="text-center text-md">
                 Ingresa los datos generales del niño/a
@@ -12,64 +12,112 @@
         <div class="shadow-lg rounded-2xl px-5 py-10 bg-white">
             <form [formGroup]="registerForm" class="space-y-5">
                 <p class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p>
+
+                <!-- Nombre y apellidos -->
                 <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <div class="flex flex-col">
-                        <label for="username">Nombre(s) <sup class="text-red-500">*</sup></label>
-                        <input pInputText type="text" formControlName="name"/>
+                    <div class="flex flex-col gap-1">
+                        <label for="name">Nombre(s) <sup class="text-red-500">*</sup></label>
+                        <input pInputText id="name" type="text" formControlName="name"
+                               [class.ng-invalid]="isInvalid('name')" [class.ng-dirty]="isInvalid('name')"/>
+                        @if (isInvalid('name')) {
+                            <small class="text-red-500">El nombre es obligatorio.</small>
+                        }
                     </div>
 
-                    <div class="flex flex-col">
-                        <label for="username">Apellidos <sup class="text-red-500">*</sup></label>
-                        <input pInputText type="text" formControlName="lastname" placeholder="Apellidos"/>
+                    <div class="flex flex-col gap-1">
+                        <label for="lastname">Apellidos <sup class="text-red-500">*</sup></label>
+                        <input pInputText id="lastname" type="text" formControlName="lastname"
+                               [class.ng-invalid]="isInvalid('lastname')" [class.ng-dirty]="isInvalid('lastname')"/>
+                        @if (isInvalid('lastname')) {
+                            <small class="text-red-500">Los apellidos son obligatorios.</small>
+                        }
                     </div>
                 </div>
 
-                <div>
-                    <label for="">Fecha de nacimiento <sup class="text-red-500">*</sup></label>
+                <!-- Fecha de nacimiento -->
+                <div class="flex flex-col gap-1">
+                    <label>Fecha de nacimiento <sup class="text-red-500">*</sup></label>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-5">
-                        <input pInputText type="text" formControlName="birthday_day" placeholder="Día"/>
+                        <p-select
+                            [options]="days"
+                            formControlName="birthday_day"
+                            placeholder="Día"
+                            [class.ng-invalid]="isInvalid('birthday_day')"
+                            (onChange)="onBirthdayChange()"/>
                         <p-select
                             [options]="months"
                             optionLabel="month"
                             optionValue="digit"
                             formControlName="birthday_month"
-                            placeholder="Mes"/>
-                        <input
-                            pInputText
-                            type="text"
+                            placeholder="Mes"
+                            [class.ng-invalid]="isInvalid('birthday_month')"
+                            (onChange)="onBirthdayChange()"/>
+                        <p-select
+                            [options]="years"
                             formControlName="birthday_year"
                             placeholder="Año"
-                            (blur)="calculateAge()"
-                        />
+                            [class.ng-invalid]="isInvalid('birthday_year')"
+                            (onChange)="onBirthdayChange()"/>
                     </div>
+                    @if (isInvalid('birthday_day') || isInvalid('birthday_month') || isInvalid('birthday_year')) {
+                        <small class="text-red-500">La fecha de nacimiento es obligatoria.</small>
+                    }
+                    @if (ageWarning()) {
+                        <small class="text-red-500 font-medium">{{ ageWarning() }}</small>
+                    }
                 </div>
 
-                <div class="flex flex-col">
-                    <label for="username">Dirección <sup class="text-red-500">*</sup></label>
-                    <input type="text" pInputText formControlName="address"/>
+                <!-- Dirección -->
+                <div class="flex flex-col gap-1">
+                    <label for="address">Dirección <sup class="text-red-500">*</sup></label>
+                    <input type="text" id="address" pInputText formControlName="address"
+                           [class.ng-invalid]="isInvalid('address')" [class.ng-dirty]="isInvalid('address')"/>
+                    @if (isInvalid('address')) {
+                        <small class="text-red-500">La dirección es obligatoria.</small>
+                    }
                 </div>
 
                 <hr>
 
+                <!-- Información de los padres -->
                 <h3 class="font-semibold text-xl">Información de los padres</h3>
-                <div>
-                    <p class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p>
-                </div>
+                <p class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p>
 
                 <div formArrayName="parents" class="space-y-5">
-                    @for (parent of parents.controls; track parent) {
-                        <div>
-                            <label for="">Información de {{ parent.value.type }} <sup class="text-red-500">*</sup></label>
+                    @for (parent of parents.controls; track $index) {
+                        <div class="flex flex-col gap-1">
+                            <label>Información de {{ parent.value.type }} <sup class="text-red-500">*</sup></label>
                             <div [formGroupName]="$index" class="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-5">
-                                <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"/>
-                                <p-iconfield>
-                                    <input pInputText type="text" formControlName="email" placeholder="Correo electrónico"/>
-                                    <p-inputicon class="pi pi-at" />
-                                </p-iconfield>
-                                <p-iconfield>
-                                    <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
-                                    <p-inputicon class="pi pi-phone" />
-                                </p-iconfield>
+                                <div class="flex flex-col gap-1">
+                                    <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"
+                                           [class.ng-invalid]="isParentInvalid($index, 'full_name')"
+                                           [class.ng-dirty]="isParentInvalid($index, 'full_name')"/>
+                                    @if (isParentInvalid($index, 'full_name')) {
+                                        <small class="text-red-500">{{ getParentError($index, 'full_name') }}</small>
+                                    }
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <p-iconfield>
+                                        <input pInputText type="email" formControlName="email" placeholder="Correo electrónico"
+                                               [class.ng-invalid]="isParentInvalid($index, 'email')"
+                                               [class.ng-dirty]="isParentInvalid($index, 'email')"/>
+                                        <p-inputicon class="pi pi-at" />
+                                    </p-iconfield>
+                                    @if (isParentInvalid($index, 'email')) {
+                                        <small class="text-red-500">{{ getParentError($index, 'email') }}</small>
+                                    }
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <p-iconfield>
+                                        <input pInputText type="tel" formControlName="cellphone" placeholder="Número celular"
+                                               [class.ng-invalid]="isParentInvalid($index, 'cellphone')"
+                                               [class.ng-dirty]="isParentInvalid($index, 'cellphone')"/>
+                                        <p-inputicon class="pi pi-phone" />
+                                    </p-iconfield>
+                                    @if (isParentInvalid($index, 'cellphone')) {
+                                        <small class="text-red-500">{{ getParentError($index, 'cellphone') }}</small>
+                                    }
+                                </div>
                             </div>
                         </div>
                     }
@@ -77,19 +125,19 @@
 
                 <hr>
 
+                <!-- Personas autorizadas -->
                 <h3 class="font-semibold text-xl">Personas autorizadas para entregar y recoger al niño/a</h3>
 
-
                 <div formArrayName="authorized_person" class="space-y-5">
-                    @for (authorized of authorized_person.controls; track authorized) {
+                    @for (authorized of authorized_person.controls; track $index) {
                         <div>
-                            <label for="">Información de Persona #{{ $index + 1 }}</label>
+                            <label>Información de Persona #{{ $index + 1 }}</label>
                             <div [formGroupName]="$index" class="grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-5">
                                 <input pInputText type="text" formControlName="full_name" placeholder="Nombre completo"
                                        class="md:col-span-2"/>
                                 <input pInputText type="text" formControlName="relationship" placeholder="Parentesco"/>
                                 <p-iconfield>
-                                    <input pInputText type="text" formControlName="cellphone" placeholder="Número celular"/>
+                                    <input pInputText type="tel" formControlName="cellphone" placeholder="Número celular"/>
                                     <p-inputicon class="pi pi-phone" />
                                 </p-iconfield>
                             </div>
@@ -99,133 +147,166 @@
 
                 <hr>
 
+                <!-- Información importante -->
                 <h3 class="font-semibold text-xl">Información importante</h3>
-                <div>
-                    <p class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p>
-                </div>
+                <p class="text-xs">Los campos marcados con&nbsp;<span class="text-red-500">*</span>&nbsp;son obligatorios</p>
+
+                <!-- Alergias -->
                 <div class="space-y-3">
                     <label>¿El niño/a es alérgico a algún alimento? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
-                            <p-radio-button [value]="1" formControlName="allergy"/>
-                            <label class="ml-2">Si</label>
+                            <p-radio-button [value]="1" formControlName="allergy" (onClick)="onAllergyChange(1)"/>
+                            <label class="ml-2">Sí</label>
                         </div>
-
                         <div class="flex items-center">
-                            <p-radio-button [value]="0" formControlName="allergy"/>
+                            <p-radio-button [value]="0" formControlName="allergy" (onClick)="onAllergyChange(0)"/>
                             <label class="ml-2">No</label>
                         </div>
                     </div>
-
-                    @if (allergy.value) {
-                        <div>
+                    @if (isInvalid('allergy')) {
+                        <small class="text-red-500">Debes responder esta pregunta.</small>
+                    }
+                    @if (allergy.value === 1) {
+                        <div class="flex flex-col gap-1">
                             <label for="allergy_description">Por favor, indíquelo a continuación. <sup class="text-red-500">*</sup></label>
-                            <input type="text" pInputText formControlName="allergy_description" class="w-full"/>
+                            <input id="allergy_description" type="text" pInputText formControlName="allergy_description" class="w-full"
+                                   [class.ng-invalid]="isInvalid('allergy_description')"
+                                   [class.ng-dirty]="isInvalid('allergy_description')"/>
+                            @if (isInvalid('allergy_description')) {
+                                <small class="text-red-500">Por favor, describe la alergia.</small>
+                            }
                         </div>
                     }
                 </div>
 
+                <!-- Condición médica -->
                 <div class="space-y-3">
                     <div class="flex flex-col gap-1">
                         <label>¿Su hijo(a) cuenta con alguna condición médica, de desarrollo o necesidad específica? <sup class="text-red-500">*</sup></label>
                         <small class="text-gray-500 leading-3">
-                            Por mencionar algunos: TDAH, Sindrome de Down, Autismo o alguna discapacidad motora,
-                            intelectual
-                            o de comunicación.
+                            Por mencionar algunos: TDAH, Síndrome de Down, Autismo o alguna discapacidad motora,
+                            intelectual o de comunicación.
                         </small>
                     </div>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
-                            <p-radio-button [value]="1" formControlName="medical_condition"/>
-                            <label class="ml-2">Si</label>
+                            <p-radio-button [value]="1" formControlName="medical_condition" (onClick)="onMedicalConditionChange(1)"/>
+                            <label class="ml-2">Sí</label>
                         </div>
-
                         <div class="flex items-center">
-                            <p-radio-button [value]="0" formControlName="medical_condition"/>
+                            <p-radio-button [value]="0" formControlName="medical_condition" (onClick)="onMedicalConditionChange(0)"/>
                             <label class="ml-2">No</label>
                         </div>
-
                     </div>
-                    @if (medical_condition.value) {
-                        <div>
-                            <label for="allergy_description">Por favor, indíquelo a continuación. <sup class="text-red-500">*</sup></label>
-                            <input type="text" formControlName="medical_condition_description" pInputText class="w-full"/>
-
+                    @if (isInvalid('medical_condition')) {
+                        <small class="text-red-500">Debes responder esta pregunta.</small>
+                    }
+                    @if (medical_condition.value === 1) {
+                        <div class="flex flex-col gap-1">
+                            <label for="medical_condition_description">Por favor, indíquelo a continuación. <sup class="text-red-500">*</sup></label>
+                            <input id="medical_condition_description" type="text" formControlName="medical_condition_description" pInputText class="w-full"
+                                   [class.ng-invalid]="isInvalid('medical_condition_description')"
+                                   [class.ng-dirty]="isInvalid('medical_condition_description')"/>
+                            @if (isInvalid('medical_condition_description')) {
+                                <small class="text-red-500">Por favor, describe la condición médica.</small>
+                            }
                         </div>
                     }
-
                 </div>
 
                 <hr>
 
+                <!-- Información adicional -->
                 <h3 class="font-semibold text-xl">Información adicional</h3>
 
+                <!-- Miembro MDF -->
                 <div class="space-y-3">
                     <label>¿Es miembro de Mundo de Fe? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
                             <p-radio-button [value]="1" formControlName="mdf_member"/>
-                            <label class="ml-2">Si</label>
+                            <label class="ml-2">Sí</label>
                         </div>
-
                         <div class="flex items-center">
                             <p-radio-button [value]="0" formControlName="mdf_member"/>
                             <label class="ml-2">No</label>
                         </div>
                     </div>
+                    @if (isInvalid('mdf_member')) {
+                        <small class="text-red-500">Debes responder esta pregunta.</small>
+                    }
                 </div>
 
                 <hr>
 
+                <!-- Otra iglesia -->
                 <div class="space-y-3">
                     <label>¿Asiste a otra iglesia cristiana? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
-                            <p-radio-button [value]="1" formControlName="another_church"/>
-                            <label class="ml-2">Si</label>
+                            <p-radio-button [value]="1" formControlName="another_church" (onClick)="onAnotherChurchChange(1)"/>
+                            <label class="ml-2">Sí</label>
                         </div>
-
                         <div class="flex items-center">
-                            <p-radio-button [value]="0" formControlName="another_church"/>
+                            <p-radio-button [value]="0" formControlName="another_church" (onClick)="onAnotherChurchChange(0)"/>
                             <label class="ml-2">No</label>
                         </div>
                     </div>
-                    @if (another_church.value) {
-                        <div>
-                            <label>Escriba el nombre de la iglesia <sup class="text-red-500">*</sup></label>
-                            <input type="text" formControlName="another_church_name" pInputText class="w-full"/>
+                    @if (isInvalid('another_church')) {
+                        <small class="text-red-500">Debes responder esta pregunta.</small>
+                    }
+                    @if (another_church.value === 1) {
+                        <div class="flex flex-col gap-1">
+                            <label for="another_church_name">Escribe el nombre de la iglesia <sup class="text-red-500">*</sup></label>
+                            <input id="another_church_name" type="text" formControlName="another_church_name" pInputText class="w-full"
+                                   [class.ng-invalid]="isInvalid('another_church_name')"
+                                   [class.ng-dirty]="isInvalid('another_church_name')"/>
+                            @if (isInvalid('another_church_name')) {
+                                <small class="text-red-500">Por favor, escribe el nombre de la iglesia.</small>
+                            }
                         </div>
                     }
                 </div>
 
                 <hr>
 
+                <!-- Invitado -->
                 <div class="space-y-3">
-                    <label>¿Lo invito un miembro de Mundo de Fe Playa? <sup class="text-red-500">*</sup></label>
+                    <label>¿Lo invitó un miembro de Mundo de Fe Playa? <sup class="text-red-500">*</sup></label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
-                            <p-radio-button [value]="1" formControlName="invited"/>
-                            <label class="ml-2">Si</label>
+                            <p-radio-button [value]="1" formControlName="invited" (onClick)="onInvitedChange(1)"/>
+                            <label class="ml-2">Sí</label>
                         </div>
-
                         <div class="flex items-center">
-                            <p-radio-button [value]="0" formControlName="invited"/>
+                            <p-radio-button [value]="0" formControlName="invited" (onClick)="onInvitedChange(0)"/>
                             <label class="ml-2">No</label>
                         </div>
                     </div>
-                    @if (invited.value) {
-                        <div>
-                            <label>Escriba el nombre aquí <sup class="text-red-500">*</sup></label>
-                            <input type="text" formControlName="invite_name" pInputText class="w-full"/>
+                    @if (isInvalid('invited')) {
+                        <small class="text-red-500">Debes responder esta pregunta.</small>
+                    }
+                    @if (invited.value === 1) {
+                        <div class="flex flex-col gap-1">
+                            <label for="invite_name">Escribe el nombre aquí <sup class="text-red-500">*</sup></label>
+                            <input id="invite_name" type="text" formControlName="invite_name" pInputText class="w-full"
+                                   [class.ng-invalid]="isInvalid('invite_name')"
+                                   [class.ng-dirty]="isInvalid('invite_name')"/>
+                            @if (isInvalid('invite_name')) {
+                                <small class="text-red-500">Por favor, escribe el nombre de quien lo invitó.</small>
+                            }
                         </div>
                     }
                 </div>
 
                 <hr>
 
+                <!-- Términos y condiciones -->
                 <div class="text-justify text-sm space-y-3">
-                    <p class="text-gray-500">La Escuela de Verano “Kingdom Kids {{ currentDate | date:'YYYY' }}”
-                        que se realizará del 21 al 25 de julio de {{ currentDate | date:'YYYY' }}, es un
+                    <p class="text-gray-500">La Escuela de Verano "Kingdom Kids {{ currentDate | date:'y' }}"
+                        que se realizará del <strong>lunes 20 al viernes 24 de julio de {{ currentDate | date:'y' }}</strong>
+                        (Clausura: <strong>sábado 25 de julio a las 7 PM para toda la familia</strong>), es un
                         evento totalmente gratuito que implica actividades físicas, recreativas,
                         religiosas y la convivencia de niños y niñas de diferentes edades. La seguridad es sumamente
                         importante para nosotros, y cuenta con nuestra máxima atención y cuidado, pero la posibilidad de
@@ -233,13 +314,11 @@
                         que se desarrollan. Al registrar a su hijo(a) está AUTORIZANDO y
                         consintiendo que su hijo(a) pueda realizar dichas actividades. Asimismo, bajo su responsabilidad
                         acepta que entiende los riesgos de accidente que significa las actividades físicas y recreativas
-                        así como la convivencia con más personas, y de riesgos de contagio de COVID19, por lo que
+                        así como la convivencia con más personas, por lo que
                         manifiesta que libera de toda responsabilidad de cualquier naturaleza a La Escuela de Verano
-                        “Kingdom Kids {{ currentDate | date:'YYYY' }}” y a la Iglesia Cristiana Mundo de Fe de la Rivera
-                        Maya Asociación Religiosa,
-                        a
-                        sus representantes legales, colaboradores y participantes.
-                    <p>
+                        "Kingdom Kids {{ currentDate | date:'y' }}" y a la Iglesia Cristiana Mundo de Fe de la Rivera
+                        Maya Asociación Religiosa, a sus representantes legales, colaboradores y participantes.
+                    </p>
 
                     <p class="text-gray-500">
                         Así mismo, por medio de la presente y de conformidad con la Ley Federal del Derecho de Autor,
@@ -250,26 +329,29 @@
                         de otro tipo.
                     </p>
                     <p class="text-gray-500">
-                        Queremos recordarle de NO traer a su hijo o hija, en caso de tener síntomas tales, como gripe,
-                        tos, fiebre, o si alguno de los familiares con quien vive los presentase, así también le pedimos
+                        Queremos recordarle de NO traer a su hijo o hija, en caso de tener síntomas tales como gripe,
+                        tos o fiebre. Así también le pedimos
                         no enviar a sus hijo(a) con objetos de valor que puedan extraviar fácilmente, por tal motivo los
                         organizadores no se hacen responsables de los desperfectos o pérdidas de objetos de valor.
                         <br> En Playa del Carmen Quintana Roo a {{ currentDate | date:'longDate' }}
                     </p>
-                    <div>
-                        <p-checkbox formControlName="terms_condition" binary="true" inputId="terms_condition"/>
-                        <label for="terms_condition" class="ml-2">He leido detenidamente los Terminos y Condiciones y quiero
-                            registrar a
-                            mi
-                            hijo(a).</label>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-start gap-2">
+                            <p-checkbox formControlName="terms_condition" binary="true" inputId="terms_condition"/>
+                            <label for="terms_condition" class="cursor-pointer">He leído detenidamente los Términos y Condiciones y quiero
+                                registrar a mi hijo(a).</label>
+                        </div>
+                        @if (isInvalid('terms_condition')) {
+                            <small class="text-red-500">Debes aceptar los términos y condiciones para continuar.</small>
+                        }
                     </div>
                 </div>
 
-                <div class="w-full text-center ">
+                <div class="w-full text-center">
                     <p-button
                         label="Finalizar registro"
-                        [disabled]="registerForm.invalid || isLoading"
-                        [loading]="isLoading"
+                        [disabled]="isLoading()"
+                        [loading]="isLoading()"
                         (click)="register()"
                     />
                 </div>

@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    urlApi: 'https://api.mundodefeplaya.org:3035/api',
+    urlApi: 'https://api.mundodefeplaya.org:3000/api',
 };
