@@ -75,9 +75,9 @@ export class SuccessComponent implements OnInit {
             PDF.rect(0, 0, 105, 20, 'F');
             PDF.setTextColor(255, 255, 255);
             PDF.setFontSize(14);
-            PDF.text('KINGDOM KIDS 2025', 52.5, 10, { align: 'center' });
+            PDF.text(`KINGDOM KIDS ${this.currentDate.getFullYear()}`, 52.5, 10, { align: 'center' });
             PDF.setFontSize(10);
-            PDF.text('21 AL 25 DE JULIO', 52.5, 16, { align: 'center' });
+            PDF.text('20 AL 24 DE JULIO', 52.5, 16, { align: 'center' });
 
             // Contenido
             let y = 25;
@@ -85,7 +85,7 @@ export class SuccessComponent implements OnInit {
             PDF.setFontSize(8);
             PDF.text('Edades: 5 a 11 años', 10, y);
             PDF.text('Horario: Lun-Vie 09:00-13:00', 10, y + 4);
-            PDF.text('Entrada: Av. 35 Entre Calle 1 y 3 Sur', 10, y + 8);
+            PDF.text('Entrada: Calle 78 Nte Lote 001, esq. Diag. 65 y Av. 28 de Julio', 10, y + 8);
             PDF.text('EVENTO GRATUITO', 10, y + 12);
 
             y += 20;
@@ -117,7 +117,7 @@ export class SuccessComponent implements OnInit {
             y = y + 45;
             PDF.setTextColor(0, 128, 0); // Green
             PDF.setFontSize(9);
-            PDF.text('GRAN CLAUSURA: SÁB 26 JUL, 7PM', 52.5, y, { align: 'center' });
+            PDF.text('GRAN CLAUSURA: SÁB 25 JUL, 7PM', 52.5, y, { align: 'center' });
             PDF.text('¡Para toda la familia!', 52.5, y + 5, { align: 'center' });
 
             y = y + 12;
