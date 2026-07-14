@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 
 export interface RegisterResponse {
     register: { id: number };
@@ -23,14 +23,35 @@ export interface ConfirmationResponse {
     qr: string;
 }
 
+export interface Parent {
+    full_name: string;
+    email: string;
+    cellphone: string;
+    type: string;
+}
+
+export interface AuthorizedPerson {
+    full_name: string;
+    cellphone: string;
+    relationship: string;
+}
+
+export interface KidDetail {
+    id: number;
+    name: string;
+    lastname: string;
+    birthday: string;
+    age: number;
+    allergy: number;
+    allergy_description: string;
+    medical_condition: number;
+    medical_condition_description: string;
+    parents: Parent[];
+    authorized: AuthorizedPerson[];
+}
+
 export interface KidResponse {
-    kid: {
-        id: number;
-        name: string;
-        lastname: string;
-        birthday: string;
-        age: number;
-    };
+    kid: KidDetail;
 }
 
 export interface RegisterPayload {

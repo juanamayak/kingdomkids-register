@@ -1,0 +1,22 @@
+rver/* Elimina el borde y estilos por defecto del visor html5-qrcode */
+.scanner-wrapper {
+  #reader {
+    border: none !important;
+
+    video {
+      border-radius: 0.75rem;
+    }
+
+    /* Oculta el selector de cámara y el enlace de la librería */
+    #reader__dashboard_section_swaplink,
+    #reader__filescan_input,
+    #reader__header_message {
+      display: none !important;
+    }
+
+    #reader__scan_region {
+      background: #000;
+    }
+  }
+}
+

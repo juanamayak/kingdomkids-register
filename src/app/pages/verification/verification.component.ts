@@ -1,67 +1,83 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
-import {KidsService} from '../../services/kids.service';
+import {Component, inject, effect} from '@angular/core';
+import {input} from '@angular/core';
+import {Router} from '@angular/router';
 import {MessageModule} from 'primeng/message';
 import {ButtonModule} from 'primeng/button';
+import {TagModule} from 'primeng/tag';
+import {KidsService, KidDetail} from '../../services/kids.service';
 import {CheckinService} from '../../services/checkin.service';
-import {Router} from '@angular/router';
 import {AlertsService} from '../../services/alerts.service';
+import {signal, computed} from '@angular/core';
 
 @Component({
     selector: 'app-verification',
-    imports: [
-        MessageModule,
-        ButtonModule
-    ],
+    imports: [MessageModule, ButtonModule, TagModule],
     templateUrl: './verification.component.html',
     styleUrl: './verification.component.scss'
 })
-export class VerificationComponent implements OnInit {
+export class VerificationComponent {
 
-    @Input() id: any;
+    // P6: input signal moderno en lugar de @Input() con any
+    id = input<string>('');
 
     private kidsService = inject(KidsService);
     private checkinService = inject(CheckinService);
     private alertsService = inject(AlertsService);
     private router = inject(Router);
 
-    public register: any;
-    public alert = false;
+    // P6: tipado estricto, cero any
+    registro = signal<KidDetail | null>(null);
+    isLoading = signal(false);
+    isSubmitting = signal(false);
 
-    ngOnInit() {
-        this.getRegister(this.id);
+    tieneAlertas = computed(() => {
+        const r = this.registro();
+        return r && (r.allergy === 1 || r.medical_condition === 1);
+    });
+
+    constructor() {
+        // P6: efecto reactivo al input en lugar de ngOnInit
+        effect(() => {
+            const kidId = this.id();
+            if (kidId) {
+                this.cargarRegistro(kidId);
+            }
+        });
     }
 
-    getRegister(id: any) {
+    private cargarRegistro(id: string): void {
+        this.isLoading.set(true);
+
         this.kidsService.getKidRegister(id).subscribe({
-            next: res => {
-                this.alert = true;
-                this.register = res.kid;
-                setTimeout(() => {
-                    this.alert = false;
-                }, 2500);
+            next: (res) => {
+                this.isLoading.set(false);
+                this.registro.set(res.kid);
             },
-            error: err => {
-                console.log(err);
+            error: (err) => {
+                this.isLoading.set(false);
+                console.error('Error al cargar registro:', err);
+                this.alertsService.errorAlert('No se encontró el registro indicado.');
             }
-        })
+        });
     }
 
-    checkin(registerId: any) {
-        const data = {
-            register_id: registerId
-        }
+    registrarEntrada(): void {
+        const reg = this.registro();
+        if (!reg) return;
 
-        this.checkinService.registerCheckin(data).subscribe({
-            next: res => {
-                this.alertsService.successAlert(res.message);
-                setTimeout(() => {
-                    this.router.navigate(['/scanner'])
-                }, 2500);
+        this.isSubmitting.set(true);
+
+        this.checkinService.registerCheckin({register_id: reg.id}).subscribe({
+            next: (res) => {
+                this.isSubmitting.set(false);
+                this.alertsService.successAlert(res.message).then(() => {
+                    this.router.navigate(['/scanner']);
+                });
             },
-            error: err => {
-                this.alertsService.errorAlert(err.error.errors);
+            error: (err) => {
+                this.isSubmitting.set(false);
+                this.alertsService.errorAlert(err?.error?.errors ?? 'Error al registrar la entrada.');
             }
-        })
+        });
     }
-
 }

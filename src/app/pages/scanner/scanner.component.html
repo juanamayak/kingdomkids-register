@@ -1,9 +1,287 @@
-<div class="lg:w-1/2 md:w-full mx-auto items-center justify-center">
-    <div class="space-y-5">
-        <div class="p-4 text-sm text-white bg-sky-500 " role="alert">
-            Coloca el <span class="font-medium">Codigo QR</span> en el centro de la camara.
-        </div>
+<p-toast position="top-center" />
 
-        <div id="reader" style="width:100%"></div>
+<!-- P7: Banner de sin conexión -->
+@if (!isOnline()) {
+  <div class="bg-red-600 text-white text-sm px-4 py-2 flex items-center justify-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+    </svg>
+    <span>Sin conexión con el servidor — los escaneos no se registrarán</span>
+  </div>
+}
+
+<!-- Pantalla del escáner -->
+<div class="min-h-screen bg-gray-50 flex flex-col">
+
+  <!-- Header -->
+  <div class="bg-sky-600 text-white px-6 py-4 shadow-sm">
+    <div class="max-w-lg mx-auto flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
+      </svg>
+      <div>
+        <h1 class="text-base font-semibold leading-tight">Check-in KingdomKids</h1>
+        <p class="text-sky-200 text-xs mt-0.5">Escanea el código QR del niño</p>
+      </div>
+
+      <!-- P7: Indicador de estado compacto -->
+      <div class="ml-auto flex items-center gap-1.5">
+        @if (scannerStatus() === 'error-camara') {
+          <span class="w-2 h-2 rounded-full bg-red-400"></span>
+          <span class="text-xs text-sky-100">Sin cámara</span>
+        } @else if (isProcessing()) {
+          <span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+          <span class="text-xs text-sky-100">Procesando…</span>
+        } @else if (isOnline()) {
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <span class="text-xs text-sky-100">Activo</span>
+        } @else {
+          <span class="w-2 h-2 rounded-full bg-red-400"></span>
+          <span class="text-xs text-sky-100">Sin conexión</span>
+        }
+      </div>
     </div>
+  </div>
+
+  <!-- Área del escáner -->
+  <div class="flex-1 flex flex-col items-center justify-center px-4 py-8 gap-6">
+
+    <!-- P5: Error de cámara -->
+    @if (scannerStatus() === 'error-camara') {
+      <div class="max-w-sm w-full bg-white rounded-xl border border-red-200 p-6 text-center shadow-sm">
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+          </svg>
+        </div>
+        <p class="text-slate-700 font-medium text-sm">No se puede acceder a la cámara</p>
+        <p class="text-slate-400 text-xs mt-1">Verifica que el navegador tenga permisos de cámara y recarga la página.</p>
+      </div>
+    }
+
+    <!-- Visor del escáner -->
+    <div class="w-full max-w-sm">
+      <div class="scanner-wrapper rounded-xl overflow-hidden shadow-lg border border-gray-200">
+        <div id="reader" class="w-full"></div>
+      </div>
+      <p class="text-center text-slate-400 text-xs mt-3">Centra el código QR dentro del cuadro</p>
+    </div>
+
+    <!-- P4: Indicador de procesamiento -->
+    @if (isProcessing() && !drawerVisible()) {
+      <div class="flex items-center gap-2 bg-sky-50 border border-sky-200 text-sky-700 rounded-lg px-4 py-3 text-sm">
+        <svg class="animate-spin w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        Obteniendo información del niño…
+      </div>
+    }
+
+  </div>
 </div>
+
+<!-- Drawer con información del niño -->
+<p-drawer
+  [(visible)]="drawerVisible"
+  position="bottom"
+  styleClass="kid-drawer"
+  [style]="{ height: 'auto', maxHeight: '90vh', borderRadius: '1rem 1rem 0 0' }"
+  [showCloseIcon]="false"
+  (onHide)="cerrarDrawer()"
+>
+  @if (kid(); as k) {
+    <div class="flex flex-col pb-safe overflow-y-auto">
+
+      <!-- Handle visual -->
+      <div class="flex justify-center pt-2 pb-4">
+        <div class="w-10 h-1 rounded-full bg-gray-300"></div>
+      </div>
+
+      <!-- P2: Estado del check-in del día — destacado al tope -->
+      <div class="mx-6 mb-4">
+        @if (isLoadingStatus()) {
+          <div class="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 flex items-center gap-2">
+            <svg class="animate-spin w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            <span class="text-sm text-slate-400">Verificando estado del día…</span>
+          </div>
+        } @else if (checkinDayStatus(); as estado) {
+          @switch (estado.status) {
+            @case ('sin_entrada') {
+              <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-emerald-800">Sin entrada hoy</p>
+                  <p class="text-xs text-emerald-600">Aún no ha ingresado al programa</p>
+                </div>
+              </div>
+            }
+            @case ('con_entrada') {
+              <div class="rounded-lg bg-sky-50 border border-sky-200 px-4 py-3 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-sky-800">Ya ingresó hoy</p>
+                  <p class="text-xs text-sky-600">Entrada registrada a las {{ estado.entradaHora }}</p>
+                </div>
+              </div>
+            }
+            @case ('completo') {
+              <div class="rounded-lg bg-gray-100 border border-gray-200 px-4 py-3 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-700">Entrada y salida registradas</p>
+                  <p class="text-xs text-gray-500">{{ estado.entradaHora }} — {{ estado.salidaHora }}</p>
+                </div>
+              </div>
+            }
+          }
+        }
+      </div>
+
+      <!-- Encabezado del niño -->
+      <div class="px-6 pb-4 flex items-start gap-4">
+        <!-- Avatar con inicial -->
+        <div class="w-14 h-14 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0">
+          <span class="text-sky-600 font-bold text-xl">{{ k.name.charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-semibold text-slate-700 leading-tight">{{ k.name }} {{ k.lastname }}</h2>
+          <p class="text-slate-400 text-sm mt-0.5">{{ k.age }} años</p>
+
+          <!-- P2: Alertas médicas en badges destacados -->
+          @if (tieneAlertas()) {
+            <div class="flex flex-wrap gap-2 mt-2">
+              @if (k.allergy === 1) {
+                <p-tag severity="danger" value="⚠️ Alergia" />
+              }
+              @if (k.medical_condition === 1) {
+                <p-tag severity="warn" value="🏥 Condición médica" />
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- P2: Detalle de alertas médicas con fondo rojo visible -->
+      @if (tieneAlertas()) {
+        <div class="mx-6 mb-4 rounded-lg bg-red-50 border border-red-200 p-4 space-y-2">
+          @if (k.allergy === 1 && k.allergy_description) {
+            <div>
+              <p class="text-xs font-semibold text-red-700 uppercase tracking-wide">Alergia</p>
+              <p class="text-sm text-red-800 mt-0.5">{{ k.allergy_description }}</p>
+            </div>
+          }
+          @if (k.medical_condition === 1 && k.medical_condition_description) {
+            <div>
+              <p class="text-xs font-semibold text-amber-700 uppercase tracking-wide">Condición médica</p>
+              <p class="text-sm text-amber-800 mt-0.5">{{ k.medical_condition_description }}</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Padres / tutores -->
+      @if (k.parents && k.parents.length > 0) {
+        <div class="px-6 mb-4">
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Padres / Tutores</p>
+          <div class="space-y-2">
+            @for (parent of k.parents; track parent.cellphone) {
+              <div class="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-medium text-slate-700 truncate">{{ parent.full_name }}</p>
+                  <p class="text-xs text-slate-400">{{ parent.type }} · {{ parent.cellphone }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Personas autorizadas -->
+      @if (k.authorized && k.authorized.length > 0) {
+        <div class="px-6 mb-4">
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Personas autorizadas</p>
+          <div class="space-y-2">
+            @for (auth of k.authorized; track auth.cellphone) {
+              <div class="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-medium text-slate-700 truncate">{{ auth.full_name }}</p>
+                  <p class="text-xs text-slate-400">{{ auth.relationship }} · {{ auth.cellphone }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Botones de acción -->
+      <div class="px-6 pt-2 pb-6 flex flex-col gap-3 border-t border-gray-100 mt-2">
+        <!-- Mostrar "Registrar entrada" solo si no tiene entrada hoy o si el estado no se pudo determinar -->
+        @if (!checkinDayStatus() || checkinDayStatus()?.status === 'sin_entrada') {
+          <p-button
+            label="Registrar entrada"
+            icon="pi pi-sign-in"
+            severity="success"
+            styleClass="w-full justify-center"
+            [loading]="isSubmitting()"
+            [disabled]="isSubmitting() || isLoadingStatus()"
+            (onClick)="registrarEntrada()"
+          />
+        } @else if (checkinDayStatus()?.status === 'con_entrada') {
+          <!-- Ya entró — el botón de entrada está deshabilitado con aviso -->
+          <p-button
+            label="Ya registró entrada hoy"
+            icon="pi pi-check-circle"
+            severity="secondary"
+            styleClass="w-full justify-center"
+            [disabled]="true"
+          />
+        } @else {
+          <!-- Completo — entrada y salida ya registradas -->
+          <p-button
+            label="Entrada y salida ya registradas"
+            icon="pi pi-check-circle"
+            severity="secondary"
+            styleClass="w-full justify-center"
+            [disabled]="true"
+          />
+        }
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          [text]="true"
+          styleClass="w-full justify-center"
+          [disabled]="isSubmitting()"
+          (onClick)="cerrarDrawer()"
+        />
+      </div>
+
+    </div>
+  }
+</p-drawer>
