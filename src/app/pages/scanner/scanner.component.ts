@@ -3,7 +3,7 @@ import {
     signal, computed
 } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Html5Qrcode, CameraDevice} from 'html5-qrcode';
+import {Html5Qrcode} from 'html5-qrcode';
 import {Subscription, interval} from 'rxjs';
 import {switchMap, startWith} from 'rxjs/operators';
 import {DrawerModule} from 'primeng/drawer';
@@ -18,7 +18,7 @@ import {
     CheckinStatus,
     CheckinRecord
 } from '../../services/checkin.service';
-import {environment} from '../../../environments/environment';
+import {environment} from '../../../environments/environment.development';
 
 type ScannerStatus = 'activo' | 'error-camara';
 
@@ -88,18 +88,16 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     // ── Scanner ──────────────────────────────────────────────────────────────
     private async iniciarScanner(): Promise<void> {
         try {
-            this.html5QrCode = new Html5Qrcode('reader');
-            const devices: CameraDevice[] = await Html5Qrcode.getCameras();
-
-            if (!devices || devices.length === 0) {
-                this.scannerStatus.set('error-camara');
-                return;
+            // Crear la instancia solo la primera vez; reutilizarla en reinicios para
+            // no reinyectar el DOM y evitar que el visor quede en blanco
+            if (!this.html5QrCode) {
+                this.html5QrCode = new Html5Qrcode('reader');
             }
 
-            const camaraTrasera = this.obtenerCamaraTrasera(devices);
-
+            // facingMode evita llamar a getCameras() (que dispara getUserMedia internamente
+            // y provoca el popup de permisos en cada visita a la ruta)
             await this.html5QrCode.start(
-                camaraTrasera.id,
+                {facingMode: 'environment'},
                 {fps: 10, qrbox: {width: 250, height: 250}},
                 (decodedText) => this.onQrDetectado(decodedText),
                 () => { /* ignorar errores de frame */ }
@@ -111,13 +109,6 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    private obtenerCamaraTrasera(devices: CameraDevice[]): CameraDevice {
-        const keywords = ['back', 'rear', 'environment', 'trasera', 'posterior', 'principal'];
-        return (
-            devices.find(d => keywords.some(k => d.label?.toLowerCase().includes(k))) ??
-            devices[devices.length - 1]
-        );
-    }
 
     // ── P4: Deduplicación ────────────────────────────────────────────────────
     private onQrDetectado(decodedText: string): void {
@@ -259,6 +250,7 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     private async reanudarScanner(): Promise<void> {
         this.isProcessing.set(false); // P4: liberar flag
         try {
+            // Detener si está corriendo, luego reiniciar la misma instancia
             if (this.html5QrCode) {
                 await this.html5QrCode.stop().catch(() => {});
             }
