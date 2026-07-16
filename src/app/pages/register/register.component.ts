@@ -44,6 +44,18 @@ interface AuthorizedPersonFormControls {
 
 const ALLOWED_AGES = [5, 6, 7, 8, 9, 10, 11];
 
+/**
+ * Fecha de referencia para calcular la edad.
+ * Se usa el inicio del evento Kingdom Kids (julio del año actual)
+ * en lugar de la fecha del sistema, para que los niños que cumplan
+ * años antes del evento puedan registrarse correctamente.
+ */
+const getKingdomKidsEventDate = (): Date => {
+    const currentYear = new Date().getFullYear();
+    // 20 de julio del año actual (inicio del evento)
+    return new Date(currentYear, 6, 20); // Mes 6 = julio (0-indexed)
+};
+
 @Component({
     selector: 'app-register',
     imports: [
@@ -138,9 +150,16 @@ export class RegisterComponent {
     }
 
     private generateYears(): string[] {
-        const currentYear = new Date().getFullYear();
-        const minBirthYear = currentYear - 11;
-        const maxBirthYear = currentYear - 5;
+        const eventDate = getKingdomKidsEventDate();
+        const eventYear = eventDate.getFullYear();
+
+        // Calcular rango basándose en la fecha del evento (julio)
+        // - Niños de 11 años: nacidos desde julio del año (eventYear - 11)
+        // - Niños de 5 años: nacidos hasta julio del año (eventYear - 5)
+        // Agregamos un año extra en cada extremo para cubrir casos límite
+        const minBirthYear = eventYear - 12; // Un año extra para seguridad
+        const maxBirthYear = eventYear - 4;  // Un año extra para quienes cumplirán 5 antes del evento
+
         const years: string[] = [];
         for (let y = maxBirthYear; y >= minBirthYear; y--) {
             years.push(String(y));
@@ -154,7 +173,9 @@ export class RegisterComponent {
         const day = this.registerForm.get('birthday_day')!.value;
         if (!year || !month || !day) return -1;
         const birthdate = parseISO(`${year}-${month}-${day}`);
-        return differenceInYears(new Date(), birthdate);
+        // Calcular edad al inicio del evento Kingdom Kids (julio)
+        const eventDate = getKingdomKidsEventDate();
+        return differenceInYears(eventDate, birthdate);
     }
 
     // Llamado desde el template cuando cualquier parte de la fecha cambia
@@ -165,8 +186,13 @@ export class RegisterComponent {
         if (!year || !month || !day) return;
 
         const age = this.computeAge();
+        const eventDate = getKingdomKidsEventDate();
+        const eventYear = eventDate.getFullYear();
+
         if (!ALLOWED_AGES.includes(age)) {
-            this.ageWarning.set(`La edad calculada es ${age} año(s). Solo se aceptan niños de 5 a 11 años.`);
+            this.ageWarning.set(
+                `La edad al inicio del evento (julio ${eventYear}) será de ${age} año(s). Solo se aceptan niños de 5 a 11 años durante Kingdom Kids.`
+            );
         } else {
             this.ageWarning.set(null);
         }
@@ -251,10 +277,12 @@ export class RegisterComponent {
 
         const age = this.computeAge();
         if (!ALLOWED_AGES.includes(age)) {
+            const eventDate = getKingdomKidsEventDate();
+            const eventYear = eventDate.getFullYear();
             this.messageService.add({
                 severity: 'error',
                 summary: 'Edad no permitida',
-                detail: `La edad del niño/a es ${age} año(s). El rango permitido es de 5 a 11 años.`,
+                detail: `La edad del niño/a al inicio del evento (julio ${eventYear}) será de ${age} año(s). El rango permitido es de 5 a 11 años.`,
                 sticky: true,
             });
             return;
