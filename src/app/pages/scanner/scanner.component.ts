@@ -31,7 +31,7 @@ type ScannerStatus = 'activo' | 'error-camara';
 })
 export class ScannerComponent implements AfterViewInit, OnDestroy {
 
-    private html5QrCode!: Html5Qrcode;
+    private html5QrCode: Html5Qrcode | null = null;
     private kidsService = inject(KidsService);
     private checkinService = inject(CheckinService);
     private messageService = inject(MessageService);
@@ -88,11 +88,8 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     // ── Scanner ──────────────────────────────────────────────────────────────
     private async iniciarScanner(): Promise<void> {
         try {
-            // Crear la instancia solo la primera vez; reutilizarla en reinicios para
-            // no reinyectar el DOM y evitar que el visor quede en blanco
-            if (!this.html5QrCode) {
-                this.html5QrCode = new Html5Qrcode('reader');
-            }
+            // Crear siempre una instancia nueva sobre el elemento limpio
+            this.html5QrCode = new Html5Qrcode('reader');
 
             // facingMode evita llamar a getCameras() (que dispara getUserMedia internamente
             // y provoca el popup de permisos en cada visita a la ruta)
@@ -250,9 +247,13 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     private async reanudarScanner(): Promise<void> {
         this.isProcessing.set(false); // P4: liberar flag
         try {
-            // Detener si está corriendo, luego reiniciar la misma instancia
             if (this.html5QrCode) {
+                // Detener el stream activo si aún corre
                 await this.html5QrCode.stop().catch(() => {});
+                // Limpiar el DOM interno que genera la librería para evitar
+                // estado inconsistente al crear la nueva instancia
+                this.html5QrCode.clear();
+                this.html5QrCode = null;
             }
             await this.iniciarScanner();
         } catch { /* silenciar */ }
@@ -269,6 +270,7 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.html5QrCode?.stop().catch(() => {});
+        this.html5QrCode?.clear();
         this.pingSubscription?.unsubscribe();
     }
 }
