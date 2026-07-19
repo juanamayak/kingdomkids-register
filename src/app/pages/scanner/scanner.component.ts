@@ -119,10 +119,15 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
-        // P4: marcar como procesando ANTES de detener la cámara
+        // Marcar como procesando ANTES de detener para bloquear lecturas duplicadas
         this.isProcessing.set(true);
-        this.html5QrCode?.stop().catch(() => {});
-        this.cargarDatosNino(id);
+
+        // Detener el escáner de forma controlada antes de cargar datos
+        const detener = this.html5QrCode
+            ? this.html5QrCode.stop().catch(() => {})
+            : Promise.resolve();
+
+        detener.then(() => this.cargarDatosNino(id));
     }
 
     private extraerIdDeQr(decodedText: string): number | null {
@@ -241,22 +246,29 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
         this.drawerVisible.set(false);
         this.kid.set(null);
         this.checkinDayStatus.set(null);
-        setTimeout(() => this.reanudarScanner(), 400);
+        // Esperar que la animación de cierre del drawer finalice antes de reiniciar
+        setTimeout(() => this.reanudarScanner(), 600);
     }
 
     private async reanudarScanner(): Promise<void> {
-        this.isProcessing.set(false); // P4: liberar flag
-        try {
-            if (this.html5QrCode) {
-                // Detener el stream activo si aún corre
-                await this.html5QrCode.stop().catch(() => {});
-                // Limpiar el DOM interno que genera la librería para evitar
-                // estado inconsistente al crear la nueva instancia
-                this.html5QrCode.clear();
-                this.html5QrCode = null;
-            }
-            await this.iniciarScanner();
-        } catch { /* silenciar */ }
+        this.isProcessing.set(false); // P4: liberar f
+        // Detener la instancia existente — operación aislada para que un fallo
+        // no impida el reinicio (el escáner ya puede estar detenido desde onQrDetectado)
+        if (this.html5QrCode) {
+            try { await this.html5QrCode.stop(); } catch { /* ya estaba detenido */ }
+            try { this.html5QrCode.clear(); } catch { /* estado inconsistente — ignorar */ }
+            this.html5QrCode = null;
+        }
+
+        // Limpiar el DOM del #reader directamente como salvaguarda,
+        // independientemente del estado interno de la instancia anterior
+        const readerEl = document.getElementById('reader');
+        if (readerEl) { readerEl.innerHTML = ''; }
+
+        // Pequeña pausa para que el browser libere el MediaStream antes de pedirlo de nuevo
+        await new Promise<void>(resolve => setTimeout(resolve, 300));
+
+        await this.iniciarScanner();
     }
 
     // ── Helpers de toast ─────────────────────────────────────────────────────
